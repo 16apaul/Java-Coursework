@@ -14,10 +14,12 @@ import java.util.ArrayList;
  *
  */
 public class CyclingPortalImpl implements CyclingPortal {
+
 	public static ArrayList<RaceInfo> races = new ArrayList<>(); // arraylist gets declared once and puts the raceinfo
 																	// objects inside
 
 	@Override
+	// Method below is coded by Aritra
 	public int[] getRaceIds() {
 		// TODO Auto-generated method stub
 		System.out.println("getRaceIds is running");
@@ -34,7 +36,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 	}
 
 	@Override
-
+	// Method below is coded by Aritra
 	public int createRace(String name, String description) throws IllegalNameException, InvalidNameException {
 		// TODO Auto-generated method stub
 		System.out.println("createRace is running");
@@ -42,7 +44,6 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if (name.contains(" ") || name.length() == 0) { // Race names cant have whitspace and must be of length >=1
 			throw new InvalidNameException();
 		}
-		System.out.println(name);
 
 		for (int j = races.size(); j > 0; j--) { // Looks at the names of all previous race objects and throws exception
 													// if matching name is found
@@ -62,13 +63,16 @@ public class CyclingPortalImpl implements CyclingPortal {
 		RaceInfo raceInfo = new RaceInfo(name, description);
 		races.add(raceInfo);
 		int raceId = races.size() - 1; // raceId is the size of the array -1 so first Id will be 0
-		System.out.println("You created this race with id " + raceId);
+		System.out.println("You created this race with id:" + raceId + " name:" + name);
 		raceInfo.getName();
 		return raceId; // the race id is the position the object is in the array
 
 	}
 
-	class RaceInfo { // This class can create Raceinfo objects. Each object has 2 values within it. The name and description.
+	// Method below is coded by Aritra
+	class RaceInfo { // This class can create Raceinfo objects. Each object has 2 values within it.
+						// The name and description. The properties can be used to get the name and
+						// description respectively.
 		private String name;
 		private String description;
 
@@ -88,10 +92,24 @@ public class CyclingPortalImpl implements CyclingPortal {
 	}
 
 	@Override
+	// Method below is coded by Aritra
+
 	public String viewRaceDetails(int raceId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
-		return null;
+		System.out.println("viewRaceDetails is running");
+		if (raceId < races.size() && raceId > 0) {
+			RaceInfo raceInfo = races.get(raceId); // Gets object at the ID specified
+			String raceName = raceInfo.getName(); // Splits the objcet up into name and description variables
+			String raceDescription = raceInfo.getDescription();
+			String raceDetails = raceName + "," + raceDescription; // Comma added to distinguish name from variables.
+			System.out.println(raceDetails);
+			return raceDetails;
+		} else {
+			throw new IDNotRecognisedException();
+		}
+
 	}
+
 
 	@Override
 	public void removeRaceById(int raceId) throws IDNotRecognisedException {
