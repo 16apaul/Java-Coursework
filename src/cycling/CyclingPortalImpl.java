@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * BadCyclingPortal is a minimally compiling, but non-functioning implementor
@@ -15,21 +16,33 @@ import java.util.ArrayList;
  */
 public class CyclingPortalImpl implements CyclingPortal {
 
-	public static ArrayList<RaceInfo> races = new ArrayList<>(); // arraylist gets declared once and puts the raceinfo
-																	// objects inside
+	public static ArrayList<Race> races = new ArrayList<>(); // arraylist gets declared once and puts the Race
+																// objects inside
+	// Method below is coded by Aritra
+
+	public void raceIDNotRecognisedException(int raceId) throws IDNotRecognisedException {
+
+		if (raceId >= races.size() || raceId < 0) { // Checks if ID entered is greater or less than list if it is
+													// exception is thrown
+			throw new IDNotRecognisedException();
+
+		}
+
+	}
 
 	@Override
 	// Method below is coded by Aritra
 	public int[] getRaceIds() {
 		// TODO Auto-generated method stub
 		System.out.println("getRaceIds is running");
-
+		
 		int[] raceIds = new int[races.size()];
 
 		for (int i = 0; i < races.size(); i++) { // loops over each object in array
-
+			Race race = races.get(i);
+			String raceName = race.getName();
 			raceIds[i] = i;
-			System.out.println(i);
+			System.out.println(i+","+ raceName); // will output id and the name associated with the id
 		}
 
 		return raceIds;
@@ -48,7 +61,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 		for (int j = races.size(); j > 0; j--) { // Looks at the names of all previous race objects and throws exception
 													// if matching name is found
 
-			RaceInfo raceObject = races.get(j - 1);
+			Race raceObject = races.get(j - 1);
 			if (raceObject.getName().equals(name)) {
 				System.out.println(name);
 				System.out.println(raceObject);
@@ -58,27 +71,34 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 		}
 
-		// Creates arraylist to put all the objects(raceinfo) in. Racinfo consists of 2
+		// Creates arraylist to put all the objects(Race) in. Racinfo consists of 2
 		// items. Name and description.
-		RaceInfo raceInfo = new RaceInfo(name, description);
-		races.add(raceInfo);
+		Race race = new Race(name, description);
+		races.add(race);
 		int raceId = races.size() - 1; // raceId is the size of the array -1 so first Id will be 0
 		System.out.println("You created this race with id:" + raceId + " name:" + name);
-		raceInfo.getName();
+		race.getName();
 		return raceId; // the race id is the position the object is in the array
 
 	}
 
 	// Method below is coded by Aritra
-	class RaceInfo { // This class can create Raceinfo objects. Each object has 2 values within it.
-						// The name and description. The properties can be used to get the name and
-						// description respectively.
+	class Race { // This class can create Race objects. Each object has 2 values within it.
+					// The name and description. The properties can be used to get the name and
+					// description respectively.
 		private String name;
 		private String description;
+		private List<Stage> stages;
 
-		public RaceInfo(String name, String description) {
+		public Race(String name, String description) {
 			this.name = name;
 			this.description = description;
+			this.stages = new ArrayList<>();
+
+		}
+
+		public void addStage(Stage stage) {
+			stages.add(stage);
 		}
 
 		public String getName() {
@@ -89,6 +109,74 @@ public class CyclingPortalImpl implements CyclingPortal {
 			return description;
 		}
 
+		public List<Stage> getStages() {
+			return stages;
+		}
+
+		public void setStages(List<Stage> stages) {
+			this.stages = stages;
+		}
+
+	}
+	// Method below is coded by Aritra
+
+	class Stage { // stage class to store information about stages takes in 5 parameters. Each
+					// stage object gets put in a list which is in races called stages.
+		private String name;
+		private String description;
+		private double length;
+		private LocalDateTime startTime;
+		private StageType stageType;
+
+		public Stage(String name, String description, double length, LocalDateTime startTime, StageType type) {
+			this.name = name;
+			this.description = description;
+			this.length = length;
+			this.startTime = startTime;
+			
+
+		}
+
+		// Getters and setters
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public String getDescription() {
+			return description;
+		}
+
+		public void setDescription(String description) {
+			this.description = description;
+		}
+
+		public double getLength() {
+			return length;
+		}
+
+		public void setLength(double length) {
+			this.length = length;
+		}
+
+		public LocalDateTime getStartTime() {
+			return startTime;
+		}
+
+		public void setStartTime(LocalDateTime startTime) {
+			this.startTime = startTime;
+		}
+
+		public StageType getStageType() {
+			return stageType;
+		}
+
+		public void setStageType(StageType stageType) {
+			this.stageType = stageType;
+		}
 	}
 
 	@Override
@@ -97,38 +185,57 @@ public class CyclingPortalImpl implements CyclingPortal {
 	public String viewRaceDetails(int raceId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
 		System.out.println("viewRaceDetails is running");
-		if (raceId < races.size() && raceId > 0) {
-			RaceInfo raceInfo = races.get(raceId); // Gets object at the ID specified
-			String raceName = raceInfo.getName(); // Splits the objcet up into name and description variables
-			String raceDescription = raceInfo.getDescription();
-			String raceDetails = raceName + "," + raceDescription; // Comma added to distinguish name from variables.
-			System.out.println(raceDetails);
-			return raceDetails;
-		} else {
-			throw new IDNotRecognisedException();
-		}
+		raceIDNotRecognisedException(raceId);
+		Race race = races.get(raceId); // Gets object at the ID specified
+		String raceName = race.getName(); // Splits the objcet up into name and description variables
+		String raceDescription = race.getDescription();
+		String raceDetails = raceName + "," + raceDescription; // Comma added to distinguish name from variables.
+		System.out.println(raceDetails);
+		return raceDetails;
 
 	}
 
-
 	@Override
+	// Method below is coded by Aritra
+
 	public void removeRaceById(int raceId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
+		raceIDNotRecognisedException(raceId);
+		races.remove(raceId); // Removes object at the ID specified, this may change the raceId of other
+								// objects because the ID is based on position in the arraylist
 
 	}
 
 	@Override
+	// Method below is coded by Aritra
+
 	public int getNumberOfStages(int raceId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
-		return 0;
+		System.out.println("getNumberOfStages is running");
+		Race race = races.get(raceId);
+		List<Stage> stages = race.getStages();
+		int numberOfStages = stages.size();
+		System.out.println(numberOfStages);
+		return numberOfStages;
 	}
 
 	@Override
+		// Method below is coded by Aritra still have to add error handling
+
 	public int addStageToRace(int raceId, String stageName, String description, double length, LocalDateTime startTime,
 			StageType type)
 			throws IDNotRecognisedException, IllegalNameException, InvalidNameException, InvalidLengthException {
 		// TODO Auto-generated method stub
-		return 0;
+		System.out.println("addStageToRace is running");
+		raceIDNotRecognisedException(raceId);
+
+		Stage stage = new Stage(stageName, description, length, startTime, type);
+		Race race = races.get(raceId);
+		race.addStage(stage);
+		List<Stage> raceStages = race.getStages(); // Stages within the race
+		int stageId = (raceId * 100) + raceStages.size(); // First number represents the race id the last number is the
+															// stage within that.
+		return stageId;
 	}
 
 	@Override
