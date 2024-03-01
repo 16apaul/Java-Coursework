@@ -30,19 +30,61 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	}
 
+	public void InvalidNameException(String name) throws InvalidNameException {
+		if (name.contains(" ") || name.length() == 0) { // Race names cant have whitspace and must be of length >=1
+			throw new InvalidNameException();
+		}
+
+	}
+
+	public void raceIllegalNameException(String name) throws IllegalNameException {
+		for (int i = races.size(); i > 0; i--) { // Looks at the names of all previous race objects and throws exception
+			// if matching name is found
+
+			Race raceObject = races.get(i - 1);
+			String raceName = raceObject.getName();
+			if (raceName.equals(name)) {
+				System.out.println(name);
+				System.out.println(raceObject);
+
+				throw new IllegalNameException();
+			}
+
+		}
+
+	}
+
+	public void stageIllegalNameException(String name) throws IllegalNameException {
+		for (int i = races.size(); i > 0; i--) { // loops through all the previous races
+			Race raceObject = races.get(i - 1);
+			List<Stage> stages = raceObject.getStages();
+
+			for (int j = stages.size(); j > 0; j--) { // loops through all the stages within that race to find if any
+														// matches the name
+				Stage stage = stages.get(j - 1);
+				String stageName = stage.getName();
+				if (stageName.equals(name)) {
+					throw new IllegalNameException();
+				}
+			}
+
+		}
+
+	}
+
 	@Override
 	// Method below is coded by Aritra
 	public int[] getRaceIds() {
 		// TODO Auto-generated method stub
 		System.out.println("getRaceIds is running");
-		
+
 		int[] raceIds = new int[races.size()];
 
 		for (int i = 0; i < races.size(); i++) { // loops over each object in array
 			Race race = races.get(i);
 			String raceName = race.getName();
 			raceIds[i] = i;
-			System.out.println(i+","+ raceName); // will output id and the name associated with the id
+			System.out.println(i + "," + raceName); // will output id and the name associated with the id
 		}
 
 		return raceIds;
@@ -54,23 +96,8 @@ public class CyclingPortalImpl implements CyclingPortal {
 		// TODO Auto-generated method stub
 		System.out.println("createRace is running");
 
-		if (name.contains(" ") || name.length() == 0) { // Race names cant have whitspace and must be of length >=1
-			throw new InvalidNameException();
-		}
-
-		for (int j = races.size(); j > 0; j--) { // Looks at the names of all previous race objects and throws exception
-													// if matching name is found
-
-			Race raceObject = races.get(j - 1);
-			if (raceObject.getName().equals(name)) {
-				System.out.println(name);
-				System.out.println(raceObject);
-
-				throw new IllegalNameException();
-			}
-
-		}
-
+		InvalidNameException(name);
+		raceIllegalNameException(name);
 		// Creates arraylist to put all the objects(Race) in. Racinfo consists of 2
 		// items. Name and description.
 		Race race = new Race(name, description);
@@ -133,7 +160,6 @@ public class CyclingPortalImpl implements CyclingPortal {
 			this.description = description;
 			this.length = length;
 			this.startTime = startTime;
-			
 
 		}
 
@@ -211,6 +237,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	public int getNumberOfStages(int raceId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
+		raceIDNotRecognisedException(raceId);
 		System.out.println("getNumberOfStages is running");
 		Race race = races.get(raceId);
 		List<Stage> stages = race.getStages();
@@ -220,7 +247,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 	}
 
 	@Override
-		// Method below is coded by Aritra still have to add error handling
+	// Method below is coded by Aritra still have to add error handling
 
 	public int addStageToRace(int raceId, String stageName, String description, double length, LocalDateTime startTime,
 			StageType type)
@@ -228,13 +255,14 @@ public class CyclingPortalImpl implements CyclingPortal {
 		// TODO Auto-generated method stub
 		System.out.println("addStageToRace is running");
 		raceIDNotRecognisedException(raceId);
-
+		InvalidNameException(stageName);
+		stageIllegalNameException(stageName);
 		Stage stage = new Stage(stageName, description, length, startTime, type);
 		Race race = races.get(raceId);
 		race.addStage(stage);
 		List<Stage> raceStages = race.getStages(); // Stages within the race
 		int stageId = (raceId * 100) + raceStages.size(); // First number represents the race id the last number is the
-															// stage within that.
+															// stage within that. E.g. 5 will be race ID 0 and stage 5
 		return stageId;
 	}
 
