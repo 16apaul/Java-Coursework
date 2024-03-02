@@ -365,15 +365,26 @@ public class CyclingPortalImpl implements CyclingPortal {
 	}
 
 	@Override
+	// Mei
 	public void removeTeam(int teamId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
+		// Check if team ID is valid
+		if (teamId <= 0 || teamId > teams.size()) {
+			throw new IDNotRecognisedException("Team Id " + teamId + "not recognised");
+		}
+		teams.remove(teamId - 1);
 
 	}
 
 	@Override
+	// Mei
 	public int[] getTeams() {
 		// TODO Auto-generated method stub
-		return null;
+		int[] teamIds = new int[teams.size()];
+		for (int i = 0; i < teams.size(); i++) {
+			teamIds[i] = i + 1;
+		}
+		return teamIds;
 	}
 
 	@Override
