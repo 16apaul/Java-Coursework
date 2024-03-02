@@ -31,7 +31,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 	}
 	// Method below is coded by Aritra
 
-	public void InvalidNameException(String name) throws InvalidNameException {
+	public void invalidNameException(String name) throws InvalidNameException {
 		if (name.contains(" ") || name.length() == 0) { // Race names cant have whitspace and must be of length >=1
 			throw new InvalidNameException();
 		}
@@ -74,7 +74,14 @@ public class CyclingPortalImpl implements CyclingPortal {
 		}
 
 	}
+	public void invalidLengthException(double length) throws InvalidLengthException{
 
+		if (length<5) {
+			throw new InvalidLengthException();
+			
+		}
+
+	}
 	@Override
 	// Method below is coded by Aritra
 	public int[] getRaceIds() {
@@ -99,7 +106,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 		// TODO Auto-generated method stub
 		System.out.println("createRace is running");
 
-		InvalidNameException(name);
+		invalidNameException(name);
 		raceIllegalNameException(name);
 		// Creates arraylist to put all the objects(Race) in. Racinfo consists of 2
 		// items. Name and description.
@@ -261,14 +268,18 @@ public class CyclingPortalImpl implements CyclingPortal {
 		// TODO Auto-generated method stub
 		System.out.println("addStageToRace is running");
 		raceIDNotRecognisedException(raceId);
-		InvalidNameException(stageName);
+		invalidNameException(stageName);
 		stageIllegalNameException(stageName);
+		invalidLengthException(length);
 		Stage stage = new Stage(stageName, description, length, startTime, type);
 		Race race = races.get(raceId-1);
 		race.addStage(stage);
 		List<Stage> raceStages = race.getStages(); // Stages within the race
 		int stageId = (raceId * 100) + raceStages.size(); // First number represents the race id the last number is the
 															// stage within that. E.g. 105 will be race ID 1 and stage 5
+
+
+		System.out.println("created stageID:" + stageId+","+stageName);
 		return stageId;
 	}
 
