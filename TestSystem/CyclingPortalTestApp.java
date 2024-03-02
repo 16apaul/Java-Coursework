@@ -1,8 +1,12 @@
+import java.time.LocalDateTime;
+
 import cycling.CyclingPortalImpl;
 import cycling.IDNotRecognisedException;
 import cycling.IllegalNameException;
+import cycling.InvalidLengthException;
 import cycling.InvalidNameException;
 import cycling.MiniCyclingPortal;
+import cycling.StageType;
 
 /**
  * A short program to illustrate an app testing some minimal functionality of a
@@ -48,8 +52,8 @@ public class CyclingPortalTestApp {
 
 		}
 		try {
-			portal1.createRace("TeamOne", "My favorite"); // creates 2 races
-			portal1.createRace("TeamOn", "My favorite");
+			portal1.createRace("Race1", "Desc"); // creates 2 races
+			portal1.createRace("Race2", "Desc");
 
 			portal1.getRaceIds(); // gets id of the races
 		} catch (IllegalNameException e) {
@@ -80,6 +84,44 @@ public class CyclingPortalTestApp {
 			e.printStackTrace();
 			System.out.println("Error");
 		}
+
+
+		try { //creates 3 stages in raceID 1
+		portal1.addStageToRace(1,"stage1","desc",5,LocalDateTime.now(),StageType.FLAT);
+		portal1.addStageToRace(1,"stage2","desc",5,LocalDateTime.now(),StageType.HIGH_MOUNTAIN);
+		portal1.addStageToRace(1,"stage3","desc",5,LocalDateTime.now(),StageType.MEDIUM_MOUNTAIN);
+
+
+		System.out.println(LocalDateTime.now());
+		} catch(IllegalNameException e){
+			e.printStackTrace();
+			System.out.println("Error");
+
+
+		} catch(IDNotRecognisedException e){
+			e.printStackTrace();
+			System.out.println("Error");
+
+
+		} catch(InvalidNameException e){
+			e.printStackTrace();
+			System.out.println("Error");
+
+
+		}catch(InvalidLengthException e){
+			e.printStackTrace();
+			System.out.println("Error");
+
+
+		}
+
+		try {
+			portal1.viewRaceDetails(1); // view details of race with specified id
+		} catch (IDNotRecognisedException e) {
+			e.printStackTrace();
+			System.out.println("Error");
+		}
+
 
 
 		assert (portal1.getTeams().length == 1)
