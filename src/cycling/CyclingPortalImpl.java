@@ -31,7 +31,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 	}
 	// Method below is coded by Aritra
 
-	public void invalidNameException(String name) throws InvalidNameException {
+	public void InvalidNameException(String name) throws InvalidNameException {
 		if (name.contains(" ") || name.length() == 0) { // Race names cant have whitspace and must be of length >=1
 			throw new InvalidNameException();
 		}
@@ -74,14 +74,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 		}
 
 	}
-	public void invalidLengthException(double length) throws InvalidLengthException{
 
-		if (length<5) {
-			throw new InvalidLengthException();
-			
-		}
-
-	}
 	@Override
 	// Method below is coded by Aritra
 	public int[] getRaceIds() {
@@ -106,7 +99,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 		// TODO Auto-generated method stub
 		System.out.println("createRace is running");
 
-		invalidNameException(name);
+		InvalidNameException(name);
 		raceIllegalNameException(name);
 		// Creates arraylist to put all the objects(Race) in. Racinfo consists of 2
 		// items. Name and description.
@@ -261,38 +254,69 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	// Method below is coded by Aritra still have to add error handling for the length exception
-
 	public int addStageToRace(int raceId, String stageName, String description, double length, LocalDateTime startTime,
 			StageType type)
 			throws IDNotRecognisedException, IllegalNameException, InvalidNameException, InvalidLengthException {
 		// TODO Auto-generated method stub
 		System.out.println("addStageToRace is running");
 		raceIDNotRecognisedException(raceId);
-		invalidNameException(stageName);
+		InvalidNameException(stageName);
 		stageIllegalNameException(stageName);
-		invalidLengthException(length);
+		// Check if the length is valid (greater than 0)
+		if (length <= 0) {
+			throw new InvalidLengthException("Stage length must be greater than 0");
+		}
 		Stage stage = new Stage(stageName, description, length, startTime, type);
 		Race race = races.get(raceId-1);
 		race.addStage(stage);
 		List<Stage> raceStages = race.getStages(); // Stages within the race
 		int stageId = (raceId * 100) + raceStages.size(); // First number represents the race id the last number is the
 															// stage within that. E.g. 105 will be race ID 1 and stage 5
-
-
-		System.out.println("created stageID:" + stageId+","+stageName);
 		return stageId;
 	}
 
 	@Override
+	// Mei
 	public int[] getRaceStages(int raceId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
-		return null;
+		if (raceId <= 0 || raceId > races.size()) {
+			throw new IDNotRecognisedException("Race ID " + raceId + "not recognised");
+		}
+		Race race = races.get(raceId - 1);
+		List<Stage> stages = race.getStages();
+		int[] stageIds = new int[stages.size()];
+		for (int i = 0; i < stages.size(); i++) {
+			stageIds[i]= (raceId * 100) + (i + 1);
+		}
+		return stageIds;
 	}
+		
 
 	@Override
+	// Mei
 	public double getStageLength(int stageId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
-		return 0;
+		// Check if stageId is valid
+		if (stageId <= 0 || raceId > races.size() * 100) {
+			throw new IDNotRecognisedException("Stage ID " + stageId + " not recognised";
+		}
+		int raceId = stageId / 100;
+		int stageIndex = (stageId % 100) - 1;
+
+		// Check if raceId is valid
+		if (raceId <= 0 || raceId > races.size()) {
+			throw new IDNotRecognisedException("Race Id not recognised for stage " + stageId);
+		} 
+		Race race = races.get(raceId -1);
+		List<Stage> stages = race.getStages();
+
+		// Check if stageIndex is valid
+		if (stageIndex < 0 || stageIndex >= stages.size()) {
+			throw new IDNotRecognisedException("Stage ID not recognised for race " + raceID);
+		}
+
+		Stage stage = stages.get(stageIndex);
+		return stage.getLength
 	}
 
 	@Override
