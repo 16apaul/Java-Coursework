@@ -1,4 +1,5 @@
 import cycling.CyclingPortalImpl;
+import cycling.IDNotRecognisedException;
 import cycling.IllegalNameException;
 import cycling.InvalidNameException;
 import cycling.MiniCyclingPortal;
@@ -47,9 +48,10 @@ public class CyclingPortalTestApp {
 
 		}
 		try {
-			portal1.createRace("TeamOne", "My favorite");
-			portal1.createRace("TeamOne", "My favorite");
-			portal1.getRaceIds();
+			portal1.createRace("TeamOne", "My favorite"); // creates 2 races
+			portal1.createRace("TeamOn", "My favorite");
+
+			portal1.getRaceIds(); // gets id of the races
 		} catch (IllegalNameException e) {
 			e.printStackTrace();
 			System.out.println("Error");
@@ -58,7 +60,27 @@ public class CyclingPortalTestApp {
 			System.out.println("Error");
 
 		}
-		
+		try {
+			portal1.viewRaceDetails(1); // view details of race with specified id
+		} catch (IDNotRecognisedException e) {
+			e.printStackTrace();
+			System.out.println("Error");
+		}
+		try {
+			portal1.removeRaceById(1); // remove the race at the id
+
+		} catch(IDNotRecognisedException e){
+			e.printStackTrace();
+			System.out.println("Error");
+
+		}
+		try {
+			portal1.viewRaceDetails(1); // view details of race with specified id
+		} catch (IDNotRecognisedException e) {
+			e.printStackTrace();
+			System.out.println("Error");
+		}
+
 
 		assert (portal1.getTeams().length == 1)
 				: "Portal1 should have one team.";
