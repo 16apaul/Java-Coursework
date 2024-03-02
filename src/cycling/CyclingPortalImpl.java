@@ -304,12 +304,14 @@ public class CyclingPortalImpl implements CyclingPortal {
 	// Mei
 	public int[] getRaceStages(int raceId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
+		System.out.println("getRaceStages is running");
 		raceIDNotRecognisedException(raceId);
 		Race race = races.get(raceId - 1);
 		List<Stage> stages = race.getStages();
 		int[] stageIds = new int[stages.size()];
 		for (int i = 0; i < stages.size(); i++) {
 			stageIds[i] = (raceId * 100) + (i + 1);
+			System.out.println("stageIDs:"+stageIds[i]);
 		}
 		return stageIds;
 	}
