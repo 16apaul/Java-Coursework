@@ -122,6 +122,16 @@ public class CyclingPortalTestApp {
 			System.out.println("Error");
 		}
 
+		try {
+		portal1.getStageLength(103);
+
+
+		} catch(IDNotRecognisedException e){
+			e.printStackTrace();
+			System.out.println("Error");
+		}
+		
+
 
 
 		assert (portal1.getTeams().length == 1)
