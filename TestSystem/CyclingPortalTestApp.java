@@ -131,6 +131,16 @@ public class CyclingPortalTestApp {
 			System.out.println("Error");
 		}
 		
+		try {
+			portal1.getRaceStages(1);
+	
+	
+			} catch(IDNotRecognisedException e){
+				e.printStackTrace();
+				System.out.println("Error");
+			}
+			
+		
 
 
 
