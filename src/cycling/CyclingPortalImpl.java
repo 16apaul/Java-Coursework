@@ -180,12 +180,14 @@ public class CyclingPortalImpl implements CyclingPortal {
 		private double length;
 		private LocalDateTime startTime;
 		private StageType stageType;
+		private List<Checkpoint> checkpoints; // this list can store intermediate sprints and climb checkpoint objects
 
 		public Stage(String name, String description, double length, LocalDateTime startTime, StageType type) {
 			this.name = name;
 			this.description = description;
 			this.length = length;
 			this.startTime = startTime;
+			this.checkpoints = new ArrayList<>();
 
 		}
 
@@ -229,8 +231,17 @@ public class CyclingPortalImpl implements CyclingPortal {
 		public void setStageType(StageType stageType) {
 			this.stageType = stageType;
 		}
-	}
 
+		public List<Checkpoint> getCheckpoints() {
+
+			return checkpoints;
+		}
+
+		public void addCheckPoint(Checkpoint checkpoint) {
+			checkpoints.add(checkpoint);
+		}
+
+	}
 	@Override
 	// Method below is coded by Aritra
 
