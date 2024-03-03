@@ -316,7 +316,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 		}
 
 		Stage stage = stages.get(stageIndex);
-		return stage.getLength
+		return stage.getLength();
 	}
 
 	@Override
