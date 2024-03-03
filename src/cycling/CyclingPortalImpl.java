@@ -317,24 +317,10 @@ public class CyclingPortalImpl implements CyclingPortal {
 	}
 
 	@Override
-	// Mei
 	public double getStageLength(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		System.out.println("getStageLength is running");
 
-		// Check if stageId is valid
-		stageIDNotRecognisedException(stageId); // I put all code into a method since we will need to resue it alot.
-		int raceId = stageId / 100;
-		int stageIndex = (stageId % 100) - 1;
-
-		Race race = races.get(raceId - 1);
-		List<Stage> stages = race.getStages();
-
-		Stage stage = stages.get(stageIndex);
-		double stageLength = stage.getLength();
-		System.out.println("Length at stage ID:"+stageId+" is "+stageLength);
-		return stageLength;
 	}
+
 
 	@Override
 	public void removeStageById(int stageId) throws IDNotRecognisedException {
