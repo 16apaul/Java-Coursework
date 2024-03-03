@@ -367,7 +367,16 @@ public class CyclingPortalImpl implements CyclingPortal {
 	@Override
 	public int createTeam(String name, String description) throws IllegalNameException, InvalidNameException {
 		// TODO Auto-generated method stub
-		return 0;
+		if (name == null || name.isEmpty()) {
+	            throw new InvalidNameException("Team name cannot be empty");
+	        }
+	        if (name.contains(" ")) {
+	            throw new IllegalNameException("Team name cannot contain spaces");
+	        }
+	
+	        Team team = new Team(name, description);
+	        teams.add(team);
+	        return teams.size();
 	}
 
 	@Override
@@ -396,20 +405,63 @@ public class CyclingPortalImpl implements CyclingPortal {
 	@Override
 	public int[] getTeamRiders(int teamId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
-		return null;
+		ArrayList<Integer> riderIds = new ArrayList<>();
+	        boolean found = false
+			
+	        for (Race race : races) {
+	            for (Stage stage : race.getStages()) {
+	                for (Rider rider : stage.getRiders()) {
+	                    if (rider.getTeamId() == teamId) {
+	                        riderIds.add(rider.getId());
+	                        found = true;
+	                        }
+	                    }
+	                }
+	            }
+	        if (!found) { 
+	            throw new IDNotRecognisedException("Team ID " + teamId + " not recognised.");
+	        }
+	
+	        int[] result = new int[riderIds.size];
+	        for (int i = 0; i < riderIds.size(); i++) {
+	            result[i] = riderIds.get(i);
+	        }
+	        return result;
+		}
 	}
 
 	@Override
 	public int createRider(int teamID, String name, int yearOfBirth)
 			throws IDNotRecognisedException, IllegalArgumentException {
 		// TODO Auto-generated method stub
-		return 0;
+		
 	}
 
 	@Override
 	public void removeRider(int riderId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
-
+		boolean teamFound = false;
+	        for (Race race : races) {
+	            for (Team team : race.getTeams()) {
+	                if (team.getId() == teamID) {
+	                    teamFound = true;
+	                    break;
+	                }
+	            }
+	        }
+	        if (!teamFound) {
+	            throw new IDNotRecognisedException("Team ID " + teamID " not recognised");
+	        }
+	        if (yearOfBirth < 1900 || yearOfBirth > 2024) {
+	            throw new IllegalArgumentException("Please enter your correct year of birth in YYYY format");
+	        }
+	        int riderId = generateRiderId();
+	        Rider rider = new Rider(riderId, teamID, name, yearOfBirth);
+	        riders.add(rider);
+	        return riderId;
+	    }
+	    private int generateRiderId() {
+	        return riders.size() + 1;
 	}
 
 	@Override
