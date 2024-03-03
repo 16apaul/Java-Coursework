@@ -295,29 +295,29 @@ public class CyclingPortalImpl implements CyclingPortal {
 	@Override
 	// Mei
 	public double getStageLength(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		// Check if stageId is valid
-		if (stageId <= 0 || raceId > races.size() * 100) {
-			throw new IDNotRecognisedException("Stage ID " + stageId + " not recognised";
-		}
-		int raceId = stageId / 100;
-		int stageIndex = (stageId % 100) - 1;
-
-		// Check if raceId is valid
-		if (raceId <= 0 || raceId > races.size()) {
-			throw new IDNotRecognisedException("Race Id not recognised for stage " + stageId);
-		} 
-		Race race = races.get(raceId -1);
-		List<Stage> stages = race.getStages();
-
-		// Check if stageIndex is valid
-		if (stageIndex < 0 || stageIndex >= stages.size()) {
-			throw new IDNotRecognisedException("Stage ID not recognised for race " + raceID);
-		}
-
-		Stage stage = stages.get(stageIndex);
-		return stage.getLength();
+	    // Check if stageId is valid
+	    if (stageId <= 0 || stageId > races.size() * 100 + getNumberOfStages(stageId / 100)) {
+	        throw new IDNotRecognisedException("Stage ID " + stageId + " not recognised");
+	    }
+	    int raceId = stageId / 100;
+	    int stageIndex = (stageId % 100) - 1;
+	
+	    // Check if raceId is valid
+	    if (raceId <= 0 || raceId > races.size()) {
+	        throw new IDNotRecognisedException("Race ID not recognised for stage " + stageId);
+	    } 
+	    Race race = races.get(raceId - 1);
+	    List<Stage> stages = race.getStages();
+	
+	    // Check if stageIndex is valid
+	    if (stageIndex < 0 || stageIndex >= stages.size()) {
+	        throw new IDNotRecognisedException("Stage ID not recognised for race " + raceId);
+	    }
+	
+	    Stage stage = stages.get(stageIndex);
+	    return stage.getLength();
 	}
+
 
 	@Override
 	public void removeStageById(int stageId) throws IDNotRecognisedException {
