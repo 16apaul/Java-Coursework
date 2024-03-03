@@ -24,14 +24,15 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 		if (raceId > races.size() || raceId <= 0) { // Checks if ID entered is greater or less than list if it is
 													// exception is thrown
-			throw new IDNotRecognisedException();
+			throw new IDNotRecognisedException("There is no race with ID:" + raceId);
 
 		}
 
 	}
 	// Method below is coded by Aritra
 
-	public void InvalidNameException(String name) throws InvalidNameException {
+	public void invalidNameException(String name) throws InvalidNameException { // lower case i to distinguish exception
+																				// method from exception
 		if (name.contains(" ") || name.length() == 0) { // Race names cant have whitspace and must be of length >=1
 			throw new InvalidNameException();
 		}
@@ -75,6 +76,25 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	}
 
+	// mei
+	public void stageIDNotRecognisedException(int stageId) throws IDNotRecognisedException { // made this into a method
+																								// since it will get
+																								// reused alot
+		int raceId = stageId / 100;
+		int stageIndex = (stageId % 100) - 1;
+
+		// Check if raceId is valid
+		raceIDNotRecognisedException(raceId);
+		Race race = races.get(raceId - 1);
+		List<Stage> stages = race.getStages();
+
+		// Check if stageIndex is valid
+		if (stageIndex < 0 || stageIndex >= stages.size()) {
+			throw new IDNotRecognisedException("Stage ID not recognised for race " + raceId);
+		}
+
+	}
+
 	@Override
 	// Method below is coded by Aritra
 	public int[] getRaceIds() {
@@ -86,7 +106,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 		for (int i = 0; i < races.size(); i++) { // loops over each object in array
 			Race race = races.get(i);
 			String raceName = race.getName();
-			raceIds[i] = i+1;
+			raceIds[i] = i + 1;
 			System.out.println(raceIds[i] + "," + raceName); // will output id and the name associated with the id
 		}
 
@@ -99,7 +119,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 		// TODO Auto-generated method stub
 		System.out.println("createRace is running");
 
-		InvalidNameException(name);
+		invalidNameException(name);
 		raceIllegalNameException(name);
 		// Creates arraylist to put all the objects(Race) in. Racinfo consists of 2
 		// items. Name and description.
@@ -113,8 +133,10 @@ public class CyclingPortalImpl implements CyclingPortal {
 	}
 
 	// Method below is coded by Aritra
-	class Race { // This class can create Race objects. Each object has 3 values within it.
-					// The name and description and the stage list. The properties can be used to get the name
+	class Race { // This class can create Race objects(race constructor). Each object has 3
+					// values within it.
+					// The name and description and the stage list. The properties can be used to
+					// get the name
 					// description and stage list respectively.
 		private String name;
 		private String description;
@@ -150,7 +172,8 @@ public class CyclingPortalImpl implements CyclingPortal {
 	}
 	// Method below is coded by Aritra
 
-	class Stage { // stage class to store information about stages takes in 5 parameters. Each
+	class Stage { // stage class to store information about stages takes in 5 parameters(stage
+					// constructor). Each
 					// stage object gets put in a list which is in races called stages.
 		private String name;
 		private String description;
@@ -215,7 +238,8 @@ public class CyclingPortalImpl implements CyclingPortal {
 		// TODO Auto-generated method stub
 		System.out.println("viewRaceDetails is running");
 		raceIDNotRecognisedException(raceId);
-		Race race = races.get(raceId-1); // Gets object at the ID specified -1 since ID 1 will represent the 0 item in the array
+		Race race = races.get(raceId - 1); // Gets object at the ID specified -1 since ID 1 will represent the 0 item in
+											// the array
 		String raceName = race.getName(); // Splits the objcet up into name and description variables
 		String raceDescription = race.getDescription();
 		String raceDetails = raceName + "," + raceDescription; // Comma added to distinguish name from variables.
@@ -232,8 +256,8 @@ public class CyclingPortalImpl implements CyclingPortal {
 		System.out.println("removeRaceById is running");
 
 		raceIDNotRecognisedException(raceId);
-		races.remove(raceId-1); // Removes object at the ID specified -1 , this may change the raceId of other
-								// objects because the ID is based on position in the arraylist
+		races.remove(raceId - 1); // Removes object at the ID specified -1 , this may change the raceId of other
+									// objects because the ID is based on position in the arraylist
 
 	}
 
@@ -245,7 +269,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 		System.out.println("getNumberOfStages is running");
 
 		raceIDNotRecognisedException(raceId);
-		Race race = races.get(raceId-1);
+		Race race = races.get(raceId - 1);
 		List<Stage> stages = race.getStages();
 		int numberOfStages = stages.size();
 		System.out.println(numberOfStages);
@@ -253,21 +277,22 @@ public class CyclingPortalImpl implements CyclingPortal {
 	}
 
 	@Override
-	// Method below is coded by Aritra still have to add error handling for the length exception
+	// Method below is coded by Aritra still have to add error handling for the
+	// length exception
 	public int addStageToRace(int raceId, String stageName, String description, double length, LocalDateTime startTime,
 			StageType type)
 			throws IDNotRecognisedException, IllegalNameException, InvalidNameException, InvalidLengthException {
 		// TODO Auto-generated method stub
 		System.out.println("addStageToRace is running");
 		raceIDNotRecognisedException(raceId);
-		InvalidNameException(stageName);
+		invalidNameException(stageName);
 		stageIllegalNameException(stageName);
 		// Check if the length is valid (greater than 0)
-		if (length <= 0) {
-			throw new InvalidLengthException("Stage length must be greater than 0");
+		if (length < 5) {
+			throw new InvalidLengthException("Stage length must be greater than 5");
 		}
 		Stage stage = new Stage(stageName, description, length, startTime, type);
-		Race race = races.get(raceId-1);
+		Race race = races.get(raceId - 1);
 		race.addStage(stage);
 		List<Stage> raceStages = race.getStages(); // Stages within the race
 		int stageId = (raceId * 100) + raceStages.size(); // First number represents the race id the last number is the
@@ -279,49 +304,28 @@ public class CyclingPortalImpl implements CyclingPortal {
 	// Mei
 	public int[] getRaceStages(int raceId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
-		if (raceId <= 0 || raceId > races.size()) {
-			throw new IDNotRecognisedException("Race ID " + raceId + "not recognised");
-		}
+		System.out.println("getRaceStages is running");
+		raceIDNotRecognisedException(raceId);
 		Race race = races.get(raceId - 1);
 		List<Stage> stages = race.getStages();
 		int[] stageIds = new int[stages.size()];
 		for (int i = 0; i < stages.size(); i++) {
-			stageIds[i]= (raceId * 100) + (i + 1);
+			stageIds[i] = (raceId * 100) + (i + 1);
+			System.out.println("stageIDs:"+stageIds[i]);
 		}
 		return stageIds;
 	}
-		
 
 	@Override
-	// Mei
 	public double getStageLength(int stageId) throws IDNotRecognisedException {
-	    // Check if stageId is valid
-	    if (stageId <= 0 || stageId > races.size() * 100 + getNumberOfStages(stageId / 100)) {
-	        throw new IDNotRecognisedException("Stage ID " + stageId + " not recognised");
-	    }
-	    int raceId = stageId / 100;
-	    int stageIndex = (stageId % 100) - 1;
-	
-	    // Check if raceId is valid
-	    if (raceId <= 0 || raceId > races.size()) {
-	        throw new IDNotRecognisedException("Race ID not recognised for stage " + stageId);
-	    } 
-	    Race race = races.get(raceId - 1);
-	    List<Stage> stages = race.getStages();
-	
-	    // Check if stageIndex is valid
-	    if (stageIndex < 0 || stageIndex >= stages.size()) {
-	        throw new IDNotRecognisedException("Stage ID not recognised for race " + raceId);
-	    }
-	
-	    Stage stage = stages.get(stageIndex);
-	    return stage.getLength();
+
 	}
 
 
 	@Override
 	public void removeStageById(int stageId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
+		stageIDNotRecognisedException(stageId);
 
 	}
 
@@ -329,6 +333,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 	public int addCategorizedClimbToStage(int stageId, Double location, CheckpointType type, Double averageGradient,
 			Double length) throws IDNotRecognisedException, InvalidLocationException, InvalidStageStateException,
 			InvalidStageTypeException {
+		stageIDNotRecognisedException(stageId);
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -336,6 +341,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 	@Override
 	public int addIntermediateSprintToStage(int stageId, double location) throws IDNotRecognisedException,
 			InvalidLocationException, InvalidStageStateException, InvalidStageTypeException {
+		stageIDNotRecognisedException(stageId);
 		// TODO Auto-generated method stub
 		return 0;
 	}
