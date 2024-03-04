@@ -29,6 +29,54 @@ public class CyclingPortalImpl implements CyclingPortal {
 		}
 
 	}
+
+	// Aritra
+	public void stageStateExceptionWaitingForResults(int stageId) throws InvalidStageStateException {
+
+		int raceId = stageId / 100; // gets raceId and stage index
+		int stageIndex = (stageId % 100) - 1;
+		Race race = races.get(raceId - 1); // gets race specified at the id and gets the stages within that race
+		List<Stage> stages = race.getStages();
+		Stage stage = stages.get(stageIndex); // gets the stage at the index specified
+		StageState stageState = stage.getStageState();
+		if (stageState == StageState.WAITING_FOR_RESULTS) {
+
+			throw new InvalidStageStateException(
+					"Can't do this action invalid stage state, current state is:" + stageState);
+		}
+	}
+	// Aritra
+
+	public void checkpointLocationException(int stageId, double location) throws InvalidLocationException {
+
+		int raceId = stageId / 100; // gets raceId and stage index
+		int stageIndex = (stageId % 100) - 1;
+		Race race = races.get(raceId - 1); // gets race specified at the id and gets the stages within that race
+		List<Stage> stages = race.getStages();
+		Stage stage = stages.get(stageIndex); // gets the stage at the index specified
+		double stageLength = stage.getLength();
+		if (stageLength <= location || 0 > location) {
+
+			throw new InvalidLocationException("Enter location in range:" + stageLength + " and " + 0);
+		}
+
+	}
+	// Aritra
+
+	public void stageTypeExeptionTT(int stageId) throws InvalidStageTypeException { // TT for time trial
+
+		int raceId = stageId / 100; // gets raceId and stage index
+		int stageIndex = (stageId % 100) - 1;
+		Race race = races.get(raceId - 1); // gets race specified at the id and gets the stages within that race
+		List<Stage> stages = race.getStages();
+		Stage stage = stages.get(stageIndex); // gets the stage at the index specified
+		StageType stageType = stage.getStageType();
+
+		if (stageType == StageType.TT) { // cant add checkpoints to time trials
+
+			throw new InvalidStageTypeException("cant add checkpoints to time trials");
+		}
+	}
 	// Method below is coded by Aritra
 
 	public void invalidNameException(String name) throws InvalidNameException { // lower case i to distinguish exception
@@ -181,12 +229,15 @@ public class CyclingPortalImpl implements CyclingPortal {
 		private LocalDateTime startTime;
 		private StageType stageType;
 		private List<Checkpoint> checkpoints; // this list can store intermediate sprints and climb checkpoint objects
+		private StageState stageState;
 
-		public Stage(String name, String description, double length, LocalDateTime startTime, StageType type) {
+		public Stage(String name, String description, double length, LocalDateTime startTime, StageType stageType) {
 			this.name = name;
 			this.description = description;
 			this.length = length;
 			this.startTime = startTime;
+			this.stageType = stageType;
+			this.stageState = StageState.ADDING_CHECKPOINTS; // default parameter
 			this.checkpoints = new ArrayList<>();
 
 		}
@@ -241,7 +292,62 @@ public class CyclingPortalImpl implements CyclingPortal {
 			checkpoints.add(checkpoint);
 		}
 
+		public StageState getStageState() {
+			return stageState;
+		}
+
+		public void nextState() {
+
+			if (stageState == StageState.ADDING_CHECKPOINTS) {
+				stageState = StageState.WAITING_FOR_RESULTS;
+
+			} else if (stageState == StageState.WAITING_FOR_RESULTS) {
+
+			}
+
+		}
+
 	}
+	// Aritra
+
+	class ClimbCheckpoint extends Checkpoint { // constructor for creating climbCheckpoints. This will be stored in the
+		// stage as List<Checkpoint> child of checkpoint
+		private double averageGradient;
+		private double length;
+		private CheckpointType checkpointType;
+
+		public ClimbCheckpoint(double location, CheckpointType type, double averageGradient, double length) {
+			super(location);
+			this.averageGradient = averageGradient;
+			this.length = length;
+
+		}
+
+		public CheckpointType getCheckpointType() {
+
+			return checkpointType;
+		}
+
+		public double getaverageGradient() {
+			return averageGradient;
+		}
+
+		public double getLength() {
+			return length;
+		}
+	}
+
+	// Aritra
+	class IntermediateSprint extends Checkpoint { // constructor for creating checkpoints. This will be stored in the
+		// stage as a List<Checkpoint>. Child of checkpoint
+
+		public IntermediateSprint(double location) {
+			super(location);
+
+		}
+
+	}
+
 	@Override
 	// Method below is coded by Aritra
 
@@ -288,8 +394,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 	}
 
 	@Override
-	// Method below is coded by Aritra still have to add error handling for the
-	// length exception
+	// Method below is coded by Aritra
 	public int addStageToRace(int raceId, String stageName, String description, double length, LocalDateTime startTime,
 			StageType type)
 			throws IDNotRecognisedException, IllegalNameException, InvalidNameException, InvalidLengthException {
@@ -303,11 +408,14 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new InvalidLengthException("Stage length must be greater than 5");
 		}
 		Stage stage = new Stage(stageName, description, length, startTime, type);
+		StageType stageType = stage.getStageType();
+		System.out.println(stageType + "," + stage.getLength() + "," + stage.getName());
 		Race race = races.get(raceId - 1);
 		race.addStage(stage);
 		List<Stage> raceStages = race.getStages(); // Stages within the race
 		int stageId = (raceId * 100) + raceStages.size(); // First number represents the race id the last number is the
 															// stage within that. E.g. 105 will be race ID 1 and stage 5
+		assert stageType != null;
 		return stageId;
 	}
 
@@ -322,7 +430,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 		int[] stageIds = new int[stages.size()];
 		for (int i = 0; i < stages.size(); i++) {
 			stageIds[i] = (raceId * 100) + (i + 1);
-			System.out.println("stageIDs:"+stageIds[i]);
+			System.out.println("stageIDs:" + stageIds[i]);
 		}
 		return stageIds;
 	}
@@ -346,7 +454,6 @@ public class CyclingPortalImpl implements CyclingPortal {
 		System.out.println("Length at stage ID:" + stageId + " is " + stageLength);
 		return stageLength;
 	}
-
 
 	@Override
 	// Aritra
@@ -375,46 +482,6 @@ public class CyclingPortalImpl implements CyclingPortal {
 		}
 	}
 
-	// Aritra
-
-	class ClimbCheckpoint extends Checkpoint { // constructor for creating climbCheckpoints. This will be stored in the
-												// stage as List<Checkpoint> child of checkpoint
-		private double averageGradient;
-		private double length;
-		private CheckpointType checkpointType;
-
-		public ClimbCheckpoint(double location, CheckpointType type, double averageGradient, double length) {
-			super(location);
-			this.averageGradient = averageGradient;
-			this.length = length;
-
-		}
-
-		public CheckpointType getCheckpointType() {
-
-			return checkpointType;
-		}
-
-		public double getaverageGradient() {
-			return averageGradient;
-		}
-
-		public double getLength() {
-			return length;
-		}
-	}
-
-	// Aritra
-	class IntermediateSprint extends Checkpoint { // constructor for creating checkpoints. This will be stored in the
-		// stage as a List<Checkpoint>. Child of checkpoint
-
-		public IntermediateSprint(double location) {
-			super(location);
-
-		}
-
-	}
-
 	@Override
 	// Aritra
 	public int addCategorizedClimbToStage(int stageId, Double location, CheckpointType type, Double averageGradient,
@@ -423,52 +490,83 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 		System.out.println("Add climb checkpoint is running");
 		stageIDNotRecognisedException(stageId);
-		ClimbCheckpoint climbCheckpoint = new ClimbCheckpoint(location, type, averageGradient, length); // creates new
-																										// checkpoint
-																										// with
-		// requires parameters
+		stageStateExceptionWaitingForResults(stageId);
+		checkpointLocationException(stageId, location);
+		stageTypeExeptionTT(stageId);
+		System.out.println(stageId);
 		int raceId = stageId / 100; // gets raceId and stage index
 		int stageIndex = (stageId % 100) - 1;
 		Race race = races.get(raceId - 1); // gets race specified at the id and gets the stages within that race
 		List<Stage> stages = race.getStages();
 		Stage stage = stages.get(stageIndex); // gets the stage at the index specified
+
+		ClimbCheckpoint climbCheckpoint = new ClimbCheckpoint(location, type, averageGradient, length); // creates new
+																										// checkpoint
+																										// with
+		// requires parameters
+
 		stage.addCheckPoint(climbCheckpoint); // adds checkpoint to that stage
 		List<Checkpoint> checkpoints = stage.getCheckpoints(); // gets the checkpoint list
 		int checkpointId = stageId * 100 + checkpoints.size(); // checkpointId of 10501 is race 1 stage 5 checkpoint 1
 		// TODO Auto-generated method stub
+		assert checkpointId > 10101;
+
 		return checkpointId;
 	}
 
 	@Override
 	// Aritra
+
 	public int addIntermediateSprintToStage(int stageId, double location) throws IDNotRecognisedException,
 			InvalidLocationException, InvalidStageStateException, InvalidStageTypeException {
 		// TODO Auto-generated method stub
+		System.out.println("Add sprint checkpoint is running");
+
 		stageIDNotRecognisedException(stageId);
-		IntermediateSprint intermediateSprint = new IntermediateSprint(location); // creates new checkpoint with
-																					// requires parameters
+		stageStateExceptionWaitingForResults(stageId);
+		checkpointLocationException(stageId, location);
+		stageTypeExeptionTT(stageId);
+		System.out.println(stageId);
 		int raceId = stageId / 100; // gets raceId and stage index
 		int stageIndex = (stageId % 100) - 1;
 		Race race = races.get(raceId - 1); // gets race specified at the id and gets the stages within that race
 		List<Stage> stages = race.getStages();
 		Stage stage = stages.get(stageIndex); // gets the stage at the index specified
+
+		IntermediateSprint intermediateSprint = new IntermediateSprint(location); // creates new checkpoint with
+																					// requires parameters
+
 		stage.addCheckPoint(intermediateSprint); // adds checkpoint to that stage
 		List<Checkpoint> checkpoints = stage.getCheckpoints(); // gets the checkpoint list
 		int checkpointId = stageId * 100 + checkpoints.size(); // checkpointId of 10501 is race 1 stage 5 checkpoint 1
 		// TODO Auto-generated method stub
+		assert checkpointId > 10101;
+
 		return checkpointId;
 	}
-
 
 	@Override
 	public void removeCheckpoint(int checkpointId) throws IDNotRecognisedException, InvalidStageStateException {
 		// TODO Auto-generated method stub
+		int stageId = checkpointId / 100;
+		stageStateExceptionWaitingForResults(stageId);
 
 	}
 
 	@Override
+	// Aritra
 	public void concludeStagePreparation(int stageId) throws IDNotRecognisedException, InvalidStageStateException {
 		// TODO Auto-generated method stub
+		System.out.println("conclude stage preparations are running");
+		int raceId = stageId / 100; // gets raceId and stage index
+		int stageIndex = (stageId % 100) - 1;
+		Race race = races.get(raceId - 1); // gets race specified at the id and gets the stages within that race
+		List<Stage> stages = race.getStages();
+		Stage stage = stages.get(stageIndex); // gets the stage at the index specified
+		stageIDNotRecognisedException(stageId);
+		stageStateExceptionWaitingForResults(stageId);
+
+		stage.nextState(); // goes to waiting for results state
 
 	}
 
@@ -476,6 +574,8 @@ public class CyclingPortalImpl implements CyclingPortal {
 	// Aritra
 	public int[] getStageCheckpoints(int stageId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
+		System.out.println("getStageCheckpoints is running");
+		stageIDNotRecognisedException(stageId);
 		int raceId = stageId / 100; // gets raceId and stage index
 		int stageIndex = (stageId % 100) - 1;
 		Race race = races.get(raceId - 1); // gets race specified at the id and gets the stages within that race
@@ -487,13 +587,12 @@ public class CyclingPortalImpl implements CyclingPortal {
 		for (int i = 0; i < checkpoints.size(); i++) {
 			Checkpoint checkpoint = checkpoints.get(i);
 			checkpointId[i] = checkpointIdFrame + i + 1;
-			System.out.println(checkpointId[i]);
 			if (checkpoint instanceof ClimbCheckpoint) {
-				System.out.println("Climb checkpoint");
+				System.out.println("Climb checkpoint:" +checkpointId[i] );
 				// Use climbCheckpoint
 			} else if (checkpoint instanceof IntermediateSprint) {
 				// Use sprintCheckpoint
-				System.out.println("Intermediate sprint");
+				System.out.println("Intermediate sprint:"+checkpointId[i]);
 
 			}
 		}
