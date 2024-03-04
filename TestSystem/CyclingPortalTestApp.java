@@ -91,8 +91,10 @@ public class CyclingPortalTestApp {
 
 		try { // creates 3 stages in raceID 1
 			portal1.addStageToRace(1, "stage1", "desc", 5, LocalDateTime.now(), StageType.FLAT);
-			portal1.addStageToRace(1, "stage2", "desc", 5, LocalDateTime.now(), StageType.HIGH_MOUNTAIN);
+			portal1.addStageToRace(1, "stage2", "desc", 5, LocalDateTime.now(), StageType.TT);
 			portal1.addStageToRace(1, "stage3", "desc", 5, LocalDateTime.now(), StageType.MEDIUM_MOUNTAIN);
+			portal1.addStageToRace(1, "stage4", "desc", 5, LocalDateTime.now(), StageType.TT);
+
 
 			System.out.println(LocalDateTime.now());
 		} catch (IllegalNameException e) {
@@ -177,13 +179,25 @@ public class CyclingPortalTestApp {
 			System.out.println("Error");
 		}
 
+		try {
+			portal1.concludeStagePreparation(101);
 
+		} catch (IDNotRecognisedException e) {
+			e.printStackTrace();
+			System.out.println("Error");
+		} catch (InvalidStageStateException e) {
+			e.printStackTrace();
+			System.out.println("Error");
+		}
 		try {
 			portal1.getStageCheckpoints(101);
+
 		} catch (IDNotRecognisedException e) {
 			e.printStackTrace();
 			System.out.println("Error");
 		}
+		
+		
 	}
 
 }
