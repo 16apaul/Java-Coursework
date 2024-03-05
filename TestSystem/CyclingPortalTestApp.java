@@ -179,6 +179,24 @@ public class CyclingPortalTestApp {
 			System.out.println("Error");
 		}
 
+		
+		try {
+			portal1.getStageCheckpoints(101);
+
+		} catch (IDNotRecognisedException e) {
+			e.printStackTrace();
+			System.out.println("Error");
+		}
+		try {
+			portal1.removeCheckpoint(10104);
+
+		} catch (IDNotRecognisedException e) {
+			e.printStackTrace();
+			System.out.println("Error");
+		}catch (InvalidStageStateException e) {
+			e.printStackTrace();
+			System.out.println("Error");
+		}
 		try {
 			portal1.concludeStagePreparation(101);
 
@@ -189,15 +207,6 @@ public class CyclingPortalTestApp {
 			e.printStackTrace();
 			System.out.println("Error");
 		}
-		try {
-			portal1.getStageCheckpoints(101);
-
-		} catch (IDNotRecognisedException e) {
-			e.printStackTrace();
-			System.out.println("Error");
-		}
-		
-		
 	}
 
 }
