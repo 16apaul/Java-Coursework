@@ -74,7 +74,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 		if (stageType == StageType.TT) { // cant add checkpoints to time trials
 
-			throw new InvalidStageTypeException("cant add checkpoints to time trials");
+			throw new InvalidStageTypeException("cant add checkpoints to time trials: "+StageType.TT);
 		}
 	}
 	// Method below is coded by Aritra
@@ -98,7 +98,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 				System.out.println(name);
 				System.out.println(raceObject);
 
-				throw new IllegalNameException();
+				throw new IllegalNameException("name is already being used at race ID: " + i);
 			}
 
 		}
@@ -116,7 +116,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 				Stage stage = stages.get(j - 1);
 				String stageName = stage.getName();
 				if (stageName.equals(name)) {
-					throw new IllegalNameException();
+					throw new IllegalNameException("name is already being used at stage ID: "+ i*10+j );
 				}
 			}
 
@@ -138,7 +138,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 		// Check if stageIndex is valid
 		if (stageIndex < 0 || stageIndex >= stages.size()) {
-			throw new IDNotRecognisedException("Stage ID not recognised for race " + raceId);
+			throw new IDNotRecognisedException("Stage ID not recognised for the stage" + stageId);
 		}
 
 	}
@@ -308,6 +308,20 @@ public class CyclingPortalImpl implements CyclingPortal {
 		}
 
 	}
+
+	// Aritra
+	class Checkpoint { // Parent of Climbcheckpoint and Intermediate sprint
+		private double location;
+
+		public Checkpoint(double location) {
+			this.location = location;
+
+		}
+
+		public double getLocation() {
+			return location;
+		}
+	}
 	// Aritra
 
 	class ClimbCheckpoint extends Checkpoint { // constructor for creating climbCheckpoints. This will be stored in the
@@ -416,6 +430,8 @@ public class CyclingPortalImpl implements CyclingPortal {
 		int stageId = (raceId * 100) + raceStages.size(); // First number represents the race id the last number is the
 															// stage within that. E.g. 105 will be race ID 1 and stage 5
 		assert stageType != null;
+		assert stageName != null;
+		assert stageId > 100;
 		return stageId;
 	}
 
@@ -468,20 +484,6 @@ public class CyclingPortalImpl implements CyclingPortal {
 		System.out.println("removed stage id:" + stageId);
 	}
 
-	// Aritra
-	class Checkpoint { // Parent of Climbcheckpoint and Intermediate sprint
-		private double location;
-
-		public Checkpoint(double location) {
-			this.location = location;
-
-		}
-
-		public double getLocation() {
-			return location;
-		}
-	}
-
 	@Override
 	// Aritra
 	public int addCategorizedClimbToStage(int stageId, Double location, CheckpointType type, Double averageGradient,
@@ -509,7 +511,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 		List<Checkpoint> checkpoints = stage.getCheckpoints(); // gets the checkpoint list
 		int checkpointId = stageId * 100 + checkpoints.size(); // checkpointId of 10501 is race 1 stage 5 checkpoint 1
 		// TODO Auto-generated method stub
-		assert checkpointId > 10101;
+		assert checkpointId >= 10101;
 
 		return checkpointId;
 	}
@@ -540,16 +542,50 @@ public class CyclingPortalImpl implements CyclingPortal {
 		List<Checkpoint> checkpoints = stage.getCheckpoints(); // gets the checkpoint list
 		int checkpointId = stageId * 100 + checkpoints.size(); // checkpointId of 10501 is race 1 stage 5 checkpoint 1
 		// TODO Auto-generated method stub
-		assert checkpointId > 10101;
+		assert checkpointId >= 10101;
 
 		return checkpointId;
 	}
 
+	public void checkpointIDNotRecognised(int checkpointId) throws IDNotRecognisedException {
+		int stageId = checkpointId / 100;
+		int stageIndex = (stageId % 100) - 1;
+		int checkpointIndex = (checkpointId % (stageId * 100)) - 1;
+		int raceId = stageId / 100;
+		raceIDNotRecognisedException(raceId);
+		stageIDNotRecognisedException(stageId);
+
+		Race race = races.get(raceId - 1); // gets race specified at the id and gets the stages within that race
+		List<Stage> stages = race.getStages();
+		Stage stage = stages.get(stageIndex);
+		List<Checkpoint> checkpoints = stage.getCheckpoints();
+
+		if (checkpoints.size() <= checkpointIndex || checkpointIndex < 0) {
+			System.out.println(checkpoints.size());
+			System.out.println(checkpointIndex);
+
+			throw new IDNotRecognisedException("Checkpoint Id not found for:" + checkpointId);
+		}
+	}
+
 	@Override
+	// Aritra
 	public void removeCheckpoint(int checkpointId) throws IDNotRecognisedException, InvalidStageStateException {
 		// TODO Auto-generated method stub
+		System.out.println("remove checkpoint is running:" + checkpointId);
 		int stageId = checkpointId / 100;
+		checkpointIDNotRecognised(checkpointId);
 		stageStateExceptionWaitingForResults(stageId);
+		int stageIndex = (stageId % 100) - 1;
+		int checkpointIndex = (checkpointId % (stageId * 100)) - 1;
+		int raceId = stageId / 100;
+		Race race = races.get(raceId - 1); // gets race specified at the id and gets the stages within that race
+		List<Stage> stages = race.getStages();
+		Stage stage = stages.get(stageIndex);
+		List<Checkpoint> checkpoints = stage.getCheckpoints();
+
+		assert checkpointIndex < 100;
+		checkpoints.remove(checkpointIndex);
 
 	}
 
@@ -557,14 +593,14 @@ public class CyclingPortalImpl implements CyclingPortal {
 	// Aritra
 	public void concludeStagePreparation(int stageId) throws IDNotRecognisedException, InvalidStageStateException {
 		// TODO Auto-generated method stub
+		stageIDNotRecognisedException(stageId);
+		stageStateExceptionWaitingForResults(stageId);
 		System.out.println("conclude stage preparations are running");
 		int raceId = stageId / 100; // gets raceId and stage index
 		int stageIndex = (stageId % 100) - 1;
 		Race race = races.get(raceId - 1); // gets race specified at the id and gets the stages within that race
 		List<Stage> stages = race.getStages();
 		Stage stage = stages.get(stageIndex); // gets the stage at the index specified
-		stageIDNotRecognisedException(stageId);
-		stageStateExceptionWaitingForResults(stageId);
 
 		stage.nextState(); // goes to waiting for results state
 
@@ -588,11 +624,11 @@ public class CyclingPortalImpl implements CyclingPortal {
 			Checkpoint checkpoint = checkpoints.get(i);
 			checkpointId[i] = checkpointIdFrame + i + 1;
 			if (checkpoint instanceof ClimbCheckpoint) {
-				System.out.println("Climb checkpoint:" +checkpointId[i] );
+				System.out.println("Climb checkpoint:" + checkpointId[i]);
 				// Use climbCheckpoint
 			} else if (checkpoint instanceof IntermediateSprint) {
 				// Use sprintCheckpoint
-				System.out.println("Intermediate sprint:"+checkpointId[i]);
+				System.out.println("Intermediate sprint:" + checkpointId[i]);
 
 			}
 		}
@@ -603,16 +639,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 	@Override
 	public int createTeam(String name, String description) throws IllegalNameException, InvalidNameException {
 		// TODO Auto-generated method stub
-		if (name == null || name.isEmpty()) {
-	            throw new InvalidNameException("Team name cannot be empty");
-	        }
-	        if (name.contains(" ")) {
-	            throw new IllegalNameException("Team name cannot contain spaces");
-	        }
-	
-	        Team team = new Team(name, description);
-	        teams.add(team);
-	        return teams.size();
+		return 0;
 	}
 
 	@Override
@@ -620,10 +647,6 @@ public class CyclingPortalImpl implements CyclingPortal {
 	public void removeTeam(int teamId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
 		// Check if team ID is valid
-		if (teamId <= 0 || teamId > teams.size()) {
-			throw new IDNotRecognisedException("Team Id " + teamId + "not recognised");
-		}
-		teams.remove(teamId - 1);
 
 	}
 
@@ -631,73 +654,28 @@ public class CyclingPortalImpl implements CyclingPortal {
 	// Mei
 	public int[] getTeams() {
 		// TODO Auto-generated method stub
-		int[] teamIds = new int[teams.size()];
-		for (int i = 0; i < teams.size(); i++) {
-			teamIds[i] = i + 1;
-		}
-		return teamIds;
+
+		return null;
 	}
 
 	@Override
 	public int[] getTeamRiders(int teamId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
-		ArrayList<Integer> riderIds = new ArrayList<>();
-	        boolean found = false
-			
-	        for (Race race : races) {
-	            for (Stage stage : race.getStages()) {
-	                for (Rider rider : stage.getRiders()) {
-	                    if (rider.getTeamId() == teamId) {
-	                        riderIds.add(rider.getId());
-	                        found = true;
-	                        }
-	                    }
-	                }
-	            }
-	        if (!found) { 
-	            throw new IDNotRecognisedException("Team ID " + teamId + " not recognised.");
-	        }
-	
-	        int[] result = new int[riderIds.size];
-	        for (int i = 0; i < riderIds.size(); i++) {
-	            result[i] = riderIds.get(i);
-	        }
-	        return result;
-		}
+
+		return null;
 	}
 
 	@Override
 	public int createRider(int teamID, String name, int yearOfBirth)
 			throws IDNotRecognisedException, IllegalArgumentException {
 		// TODO Auto-generated method stub
-		
+		return 0;
 	}
 
 	@Override
 	public void removeRider(int riderId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
-		boolean teamFound = false;
-	        for (Race race : races) {
-	            for (Team team : race.getTeams()) {
-	                if (team.getId() == teamID) {
-	                    teamFound = true;
-	                    break;
-	                }
-	            }
-	        }
-	        if (!teamFound) {
-	            throw new IDNotRecognisedException("Team ID " + teamID " not recognised");
-	        }
-	        if (yearOfBirth < 1900 || yearOfBirth > 2024) {
-	            throw new IllegalArgumentException("Please enter your correct year of birth in YYYY format");
-	        }
-	        int riderId = generateRiderId();
-	        Rider rider = new Rider(riderId, teamID, name, yearOfBirth);
-	        riders.add(rider);
-	        return riderId;
-	    }
-	    private int generateRiderId() {
-	        return riders.size() + 1;
+
 	}
 
 	@Override
