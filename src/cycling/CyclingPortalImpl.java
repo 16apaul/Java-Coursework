@@ -749,6 +749,23 @@ public class CyclingPortalImpl implements CyclingPortal {
 	@Override
 	public void removeRaceByName(String name) throws NameNotRecognisedException {
 		// TODO Auto-generated method stub
+		System.out.println("Remove race by name is running");
+		boolean nameFound = false;
+		for (int i = 0; i < races.size() ; i++) {
+			Race race = races.get(i);
+			String raceName = race.getName();
+			if ( raceName == name) {
+				races.remove(i);
+				nameFound = true;
+			}
+
+
+		}
+
+		if(nameFound == false){
+			throw new NameNotRecognisedException("Name:"+ name +" is not recognised");
+		}
+
 
 	}
 
