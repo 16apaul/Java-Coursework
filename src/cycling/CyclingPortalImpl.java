@@ -18,6 +18,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	public static ArrayList<Race> races = new ArrayList<>(); // arraylist gets declared once and puts the Race
 																// objects inside
+	public static ArrayList<Team> teams = new ArrayList<>();
 	// Method below is coded by Aritra
 
 	public void raceIDNotRecognisedException(int raceId) throws IDNotRecognisedException {
@@ -74,7 +75,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 		if (stageType == StageType.TT) { // cant add checkpoints to time trials
 
-			throw new InvalidStageTypeException("cant add checkpoints to time trials: "+StageType.TT);
+			throw new InvalidStageTypeException("cant add checkpoints to time trials: " + StageType.TT);
 		}
 	}
 	// Method below is coded by Aritra
@@ -116,7 +117,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 				Stage stage = stages.get(j - 1);
 				String stageName = stage.getName();
 				if (stageName.equals(name)) {
-					throw new IllegalNameException("name is already being used at stage ID: "+ i*10+j );
+					throw new IllegalNameException("name is already being used at stage ID: " + i * 10 + j);
 				}
 			}
 
@@ -636,40 +637,150 @@ public class CyclingPortalImpl implements CyclingPortal {
 		return checkpointId;
 	}
 
+	class Team {
+		private String name;
+		private String description;
+		private List<Rider> riders; // team stores a list of rider object
+
+		public Team(String name, String description) {
+			this.name = name;
+			this.description = description;
+			this.riders = new ArrayList<>(); 
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public String getDescription() {
+			return description;
+		}
+
+		public void addRider(Rider rider) {
+			riders.add(rider);
+		}
+
+		public List<Rider> getRiders() {
+			return riders;
+		}
+	}
+
+	class Rider {
+		private int teamID;
+		private String name;
+		private int yearOfBirth;
+
+		public Rider(int teamID, String name, int yearOfBirth) {
+			this.teamID = teamID;
+			this.name = name;
+			this.yearOfBirth = yearOfBirth;
+		}
+
+		// Getter methods for accessing rider attributes
+		public int getTeamID() {
+			return teamID;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public int getYearOfBirth() {
+			return yearOfBirth;
+		}
+
+	}
+
 	@Override
 	public int createTeam(String name, String description) throws IllegalNameException, InvalidNameException {
 		// TODO Auto-generated method stub
-		return 0;
+		System.out.println("createTeam is running");
+		invalidNameException(name);
+
+		// Check if name is already being used for another team
+		for (int i = 0; i < teams.size(); i++) {
+			Team team = teams.get(i);
+			if (team.getName().equals(name)) {
+				throw new IllegalNameException("Team name is already being used.");
+			}
+
+		}
+
+		Team team = new Team(name, description);
+
+		teams.add(team);
+		
+		System.out.println("Team created with ID:"+ teams.size());
+
+		// team ID
+		return teams.size();
 	}
 
 	@Override
 	// Mei
 	public void removeTeam(int teamId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		// Check if team ID is valid
+		// Check if the team ID is valid
+		teamIdNotRecognised(teamId);
 
+		// Remove the team from the list of teams
+		teams.remove(teamId - 1); // Adjust for 0-based indexing
 	}
 
 	@Override
 	// Mei
 	public int[] getTeams() {
-		// TODO Auto-generated method stub
+		// Create an array to store team IDs
+		System.out.println("GetTeams is running");
+		int[] teamIds = new int[teams.size()];
 
-		return null;
+		// Populate the array with team IDs
+		for (int i = 0; i < teams.size(); i++) {
+			teamIds[i] = i + 1; // fills array with numbers since those are the team ids
+			System.out.println(teamIds[i]);
+		}
+
+		return teamIds;
 	}
 
 	@Override
 	public int[] getTeamRiders(int teamId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
+		teamIdNotRecognised(teamId);
 
 		return null;
 	}
 
+	// Method to check if a teamID exists
+	public void teamIdNotRecognised(int teamId) throws IDNotRecognisedException{ 
+		// Check if the team ID is valid
+		if (teamId <= 0 || teamId > teams.size()) {
+			throw new IDNotRecognisedException("Team ID " + teamId + " not recognised");
+		}
+
+
+	}
+
 	@Override
+	// Aritra
 	public int createRider(int teamID, String name, int yearOfBirth)
 			throws IDNotRecognisedException, IllegalArgumentException {
-		// TODO Auto-generated method stub
-		return 0;
+		// Check if teamID is valid
+		System.out.println("createRider is running");
+		teamIdNotRecognised(teamID);
+
+		// Validate the year of birth
+		if (yearOfBirth < 1900 || yearOfBirth > 2024) {
+			throw new IllegalArgumentException("Invalid year of birth");
+		}
+		Team team = teams.get(teamID-1); // teams is an arraylist that stores team objects
+		Rider rider = new Rider(teamID, name, yearOfBirth);
+
+		List<Rider> riders = team.getRiders();
+		team.addRider(rider); // Add rider to the list of riders
+		int riderSize = riders.size();
+		int riderId = (teamID * 100)+ riderSize;// Stored how stage ID is stored. E.g. rider ID:101 will be team 1 rider 1
+		System.out.println("Rider created with ID:"+ riderId);
+		return riderId;
 	}
 
 	@Override
@@ -752,21 +863,19 @@ public class CyclingPortalImpl implements CyclingPortal {
 		// TODO Auto-generated method stub
 		System.out.println("Remove race by name is running");
 		boolean nameFound = false;
-		for (int i = 0; i < races.size() ; i++) { // loops through all the races names
+		for (int i = 0; i < races.size(); i++) { // loops through all the races names
 			Race race = races.get(i);
 			String raceName = race.getName();
-			if ( raceName == name) { // if matching name is found it gets removed
+			if (raceName == name) { // if matching name is found it gets removed
 				races.remove(i);
 				nameFound = true;
 			}
 
-
 		}
 
-		if(nameFound == false){
-			throw new NameNotRecognisedException("Name:"+ name +" is not recognised");
+		if (nameFound == false) {
+			throw new NameNotRecognisedException("Name:" + name + " is not recognised");
 		}
-
 
 	}
 
