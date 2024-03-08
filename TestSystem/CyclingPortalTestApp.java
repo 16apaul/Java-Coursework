@@ -43,19 +43,7 @@ public class CyclingPortalTestApp {
 		assert (portal1.getTeams().length == 0)
 				: "Innitial Portal not empty as required or not returning an empty array.";
 
-		try {
-			portal1.createTeam("TeamOne", "My favorite");
-			portal1.createTeam("TeamOne", "My favorite");
-
-			portal2.createTeam("TeamOne", "My favorite");
-		} catch (IllegalNameException e) {
-			e.printStackTrace();
-			System.out.println("Error");
-		} catch (InvalidNameException e) {
-			e.printStackTrace();
-			System.out.println("Error");
-
-		}
+		
 		try {
 			portal1.createRace("Race1", "Desc"); // creates 2 races
 			portal1.createRace("Race2", "Desc");
@@ -223,6 +211,37 @@ public class CyclingPortalTestApp {
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
+
+		// Team tests
+		try {
+			portal1.createTeam("Team1", "Desc 1");
+			portal1.createTeam("Team2", "Desc 2");
+
+		} catch (InvalidNameException e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			System.out.println("Error");
+		} catch(IllegalNameException e){
+			e.printStackTrace();
+			System.out.println("Error");
+
+		} 
+
+		try {
+			portal1.createRider(1,"Rider 1",1999);
+			portal1.createRider(1,"Rider 2",1999);
+
+		} catch (IDNotRecognisedException e) {
+			e.printStackTrace();
+			System.out.println("Error");
+		}
+		try {
+			portal1.getTeams();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+
+
 		
 	}
 
