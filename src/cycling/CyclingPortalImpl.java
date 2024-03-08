@@ -14,7 +14,7 @@ import java.util.List;
  * @version 2.0
  *
  */
-public class CyclingPortalImpl implements CyclingPortal {
+public class CyclingPortalImpl implements CyclingPortal { 
 
 	public static ArrayList<Race> races = new ArrayList<>(); // arraylist gets declared once and puts the Race
 																// objects inside
@@ -636,47 +636,209 @@ public class CyclingPortalImpl implements CyclingPortal {
 		return checkpointId;
 	}
 
+	
 	@Override
+	// Not Committed
 	public int createTeam(String name, String description) throws IllegalNameException, InvalidNameException {
-		// TODO Auto-generated method stub
-		return 0;
+		invalidNameException(name);
+	
+		// Check if name is already being used for another team
+		for (int i = 0; i < teams.size(); i++) {
+			Team team = teams.get(i);
+			if (team.getName().equals(name)) {
+				throw new IllegalNameException("Team name is already being used.");
+			}
+		}
+	
+		Team team = new Team(name, description);
+		teams.add(team);
+	
+		// team ID
+		return teams.size(); 
 	}
-
+	
+	// Define the Team class
+	class Team {
+		private String name;
+		private String description;
+	
+		public Team(String name, String description) {
+			this.name = name;
+			this.description = description;
+		}
+	
+		public String getName() {
+			return name;
+		}
+	
+		public String getDescription() {
+			return description;
+		}
+	}
+	
+	
+	
 	@Override
-	// Mei
+	// Not Committed
 	public void removeTeam(int teamId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		// Check if team ID is valid
-
+		// Check if the team ID is valid
+		if (teamId <= 0 || teamId > teams.size()) {
+			throw new IDNotRecognisedException("Team ID " + teamId + " not recognised");
+		}
+	
+		// Remove the team from the list of teams
+		teams.remove(teamId - 1); // Adjust for 0-based indexing
 	}
-
+	
+	
 	@Override
-	// Mei
+	// Not Committed
 	public int[] getTeams() {
-		// TODO Auto-generated method stub
-
-		return null;
+		// Create an array to store team IDs
+		int[] teamIds = new int[teams.size()];
+	
+		// Populate the array with team IDs
+		for (int i = 0; i < teams.size(); i++) {
+			Team team = teams.get(i);
+			teamIds[i] = team.getId();
+		}
+	
+		return teamIds;
 	}
-
+	
+	
+	// Method to find team by ID
+	private Team findTeamById(int teamId) {
+		for (Team team : teams) {
+			if (team.getId() == teamId) {
+				return team;
+			}
+		}
+		return null; // Team not found
+	}
+	
 	@Override
+	// Not Committed
 	public int[] getTeamRiders(int teamId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-
-		return null;
+		// Check if team ID is valid
+		if (!teamExists(teamId)) {
+			throw new IDNotRecognisedException("Team ID " + teamId + " not recognised");
+		}
+	
+		Team team = findTeamById(teamId);
+		List<Integer> riderIds = team.getRiderIds();
+	
+		int[] teamRiders = new int[riderIds.size()];
+		for (int i = 0; i < riderIds.size(); i++) {
+			teamRiders[i] = riderIds.get(i);
+		}
+	
+		return teamRiders;
 	}
-
-	@Override
-	public int createRider(int teamID, String name, int yearOfBirth)
-			throws IDNotRecognisedException, IllegalArgumentException {
-		// TODO Auto-generated method stub
-		return 0;
+	
+	// Method to check if a teamID exists
+	private boolean teamExists(int teamId) {
+		for (Team team : teams) {
+			if (team.getId() == teamId) {
+				return true;
+			}
+		}
+		return false;
 	}
-
+	
+	
+	
+	private static int nextRiderId = 1; // Static variable to keep track of the next available rider ID
+	private List<Rider> riders = new ArrayList<>();
+	
 	@Override
+	// Not Committed
+	public int createRider(int teamID, String name, int yearOfBirth) throws IDNotRecognisedException, IllegalArgumentException {
+	// Check if teamID is valid
+		if (!teamExists(teamID)) {
+			throw new IDNotRecognisedException("Team ID " + teamID + " not recognised");
+		}
+	
+	// Validate the year of birth
+	if (yearOfBirth < 1900 || yearOfBirth > 2024) {
+	    throw new IllegalArgumentException("Invalid year of birth");
+	}
+	
+	int riderId = generateRiderId(); // Assign the next available rider ID
+	Rider rider = new Rider(riderId, teamID, name, yearOfBirth);
+	riders.add(rider); // Add rider to the list of riders
+	
+	return riderId;
+	}
+	
+	private static synchronized int generateRiderId() {
+	return nextRiderId++; // Generate a rider ID and increment the counter
+	}
+	
+	private class Rider {
+	private int riderId;
+	private int teamID;
+	private String name;
+	private int yearOfBirth;
+	
+	public Rider(int riderId, int teamID, String name, int yearOfBirth) {
+	    this.riderId = riderId;
+	    this.teamID = teamID;
+	    this.name = name;
+	    this.yearOfBirth = yearOfBirth;
+	}
+	
+	public int getRiderId() {
+	    return riderId;
+	}
+	}
+	
+	// Getter methods for accessing rider attributes
+	public int getRiderId() {
+	return riderId;
+	}
+	
+	public int getTeamID() {
+	return teamID;
+	}
+	
+	public String getName() {
+	return name;
+	}
+	
+	public int getYearOfBirth() {
+	return yearOfBirth;
+	}
+	
+	private int generateRiderId() {
+	// Idk what to put here, just doing riderId + 1 as a placeholder for now
+	return riderId + 1;
+	}
+	
+	
+	@Override
+	// Not Committed
 	public void removeRider(int riderId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-
+		boolean riderFound = false;
+	
+		// Iterate through list of riders
+		Iterator<Rider> iterator = riders.iterator();
+		while (iterator.hasNext()) {
+			Rider rider = iterator.next();
+			if (rider.getId() == riderId) {
+				// Remove rider if ID matches
+				iterator.remove();
+				riderFound = true;
+				break;
+			}
+		}
+	
+		if (!riderFound) {
+			throw new IDNotRecognisedException("Rider ID " + riderId + " not recognised");
+		}
 	}
+	
+
 
 	@Override
 	public void registerRiderResultsInStage(int stageId, int riderId, LocalTime... checkpoints)
