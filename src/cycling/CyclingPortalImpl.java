@@ -46,6 +46,22 @@ public class CyclingPortalImpl implements CyclingPortal {
 					"Can't do this action invalid stage state, current state is:" + stageState);
 		}
 	}
+
+	// Aritra
+	public void stageStateExceptionAddingCheckpoints(int stageId) throws InvalidStageStateException {
+
+		int raceId = stageId / 100; // gets raceId and stage index
+		int stageIndex = (stageId % 100) - 1;
+		Race race = races.get(raceId - 1); // gets race specified at the id and gets the stages within that race
+		List<Stage> stages = race.getStages();
+		Stage stage = stages.get(stageIndex); // gets the stage at the index specified
+		StageState stageState = stage.getStageState();
+		if (stageState == StageState.ADDING_CHECKPOINTS) {
+
+			throw new InvalidStageStateException(
+					"Can't do this action invalid stage state, current state is:" + stageState);
+		}
+	}
 	// Aritra
 
 	public void checkpointLocationException(int stageId, double location) throws InvalidLocationException {
@@ -231,6 +247,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 		private StageType stageType;
 		private List<Checkpoint> checkpoints; // this list can store intermediate sprints and climb checkpoint objects
 		private StageState stageState;
+		private List<RiderResult> riderResults;
 
 		public Stage(String name, String description, double length, LocalDateTime startTime, StageType stageType) {
 			this.name = name;
@@ -240,6 +257,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 			this.stageType = stageType;
 			this.stageState = StageState.ADDING_CHECKPOINTS; // default parameter
 			this.checkpoints = new ArrayList<>();
+			this.riderResults = new ArrayList<>();
 
 		}
 
@@ -307,6 +325,14 @@ public class CyclingPortalImpl implements CyclingPortal {
 			}
 
 		}
+
+		public void addRiderResult(RiderResult riderResult) {
+			riderResults.add(riderResult);
+		}
+
+		public List<RiderResult> getRiderResult() {
+			return riderResults;
+		};
 
 	}
 
@@ -645,7 +671,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 		public Team(String name, String description) {
 			this.name = name;
 			this.description = description;
-			this.riders = new ArrayList<>(); 
+			this.riders = new ArrayList<>();
 		}
 
 		public String getName() {
@@ -709,8 +735,8 @@ public class CyclingPortalImpl implements CyclingPortal {
 		Team team = new Team(name, description);
 
 		teams.add(team);
-		
-		System.out.println("Team created with ID:"+ teams.size());
+
+		System.out.println("Team created with ID:" + teams.size());
 
 		// team ID
 		return teams.size();
@@ -751,12 +777,11 @@ public class CyclingPortalImpl implements CyclingPortal {
 	}
 
 	// Method to check if a teamID exists
-	public void teamIdNotRecognised(int teamId) throws IDNotRecognisedException{ 
+	public void teamIdNotRecognised(int teamId) throws IDNotRecognisedException {
 		// Check if the team ID is valid
 		if (teamId <= 0 || teamId > teams.size()) {
 			throw new IDNotRecognisedException("Team ID " + teamId + " not recognised");
 		}
-
 
 	}
 
@@ -772,14 +797,15 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if (yearOfBirth < 1900 || yearOfBirth > 2024) {
 			throw new IllegalArgumentException("Invalid year of birth");
 		}
-		Team team = teams.get(teamID-1); // teams is an arraylist that stores team objects
+		Team team = teams.get(teamID - 1); // teams is an arraylist that stores team objects
 		Rider rider = new Rider(teamID, name, yearOfBirth);
 
 		List<Rider> riders = team.getRiders();
 		team.addRider(rider); // Add rider to the list of riders
 		int riderSize = riders.size();
-		int riderId = (teamID * 100)+ riderSize;// Stored how stage ID is stored. E.g. rider ID:101 will be team 1 rider 1
-		System.out.println("Rider created with ID:"+ riderId);
+		int riderId = (teamID * 100) + riderSize;// Stored how stage ID is stored. E.g. rider ID:101 will be team 1
+													// rider 1
+		System.out.println("Rider created with ID:" + riderId);
 		return riderId;
 	}
 
@@ -789,18 +815,117 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	}
 
+	class RiderResult {
+		private int riderId;
+		private LocalTime[] checkpoints; // the length of this should be how many checkpoints within the stage
+
+		public RiderResult(int riderId, LocalTime... checkpoints) { // stores rider result in stage, this is user
+																	// defined
+			this.riderId = riderId;
+			this.checkpoints = checkpoints;
+		}
+
+		public int getRiderId() {
+			return riderId;
+		}
+
+		public LocalTime[] getCheckpoints() {
+			return checkpoints;
+		}
+
+	}
+
+	public void riderIdNotRecognised(int riderId) throws IDNotRecognisedException {
+		int teamId = riderId / 100;
+		int riderIndex = (riderId % 100) - 1;
+		teamIdNotRecognised(teamId);
+		Team team = teams.get(teamId - 1);
+		List<Rider> riders = team.getRiders();
+		if (riderIndex < 0 || riderIndex >= riders.size()) {
+			throw new IDNotRecognisedException("Rider id not recognised for:" + riderId);
+		}
+
+	}
+	public static boolean isArrayInAscendingOrder(LocalTime[] array) {
+        for (int i = 0; i < array.length - 1; i++) {
+            if (array[i].compareTo(array[i + 1]) > 0) {
+                return false; // Array is not in ascending order
+            }
+        }
+        return true; // Array is in ascending order
+    }
 	@Override
+	// Aritra 
 	public void registerRiderResultsInStage(int stageId, int riderId, LocalTime... checkpoints)
 			throws IDNotRecognisedException, DuplicatedResultException, InvalidCheckpointTimesException,
 			InvalidStageStateException {
 		// TODO Auto-generated method stub
+		System.out.println("registerRiderResultsINStage is running");
+		stageIDNotRecognisedException(stageId);
+		riderIdNotRecognised(riderId);
+		stageStateExceptionAddingCheckpoints(stageId);
+
+		int raceId = stageId / 100; // gets raceId and stage index
+		int stageIndex = (stageId % 100) - 1;
+		Race race = races.get(raceId - 1); // gets race specified at the id and gets the stages within that race
+		List<Stage> stages = race.getStages();
+		Stage stage = stages.get(stageIndex); // gets the stage at the index specified
+		RiderResult riderResult = new RiderResult(riderId, checkpoints);
+		LocalTime[] riderCheckpointTimes = riderResult.getCheckpoints();
+		List<Checkpoint> stageCheckpoints = stage.getCheckpoints();
+		List<RiderResult> getRiderResults = stage.getRiderResult();
+
+		for (int i = 0; getRiderResults.size() > i; i++) { // Loop to find if rider result is already in the stage
+			RiderResult getRiderResult = getRiderResults.get(i);
+			if (getRiderResult.getRiderId() == riderId) {
+				throw new DuplicatedResultException("Rider:"+riderId+" result already found in system for stage:"+ stageId);
+			}
+		}
+		if (isArrayInAscendingOrder(riderCheckpointTimes) == false) {
+			throw new InvalidCheckpointTimesException("Times inputed should be in order");
+		}
+
+		if (stageCheckpoints.size() + 2 == riderCheckpointTimes.length) { // there should be 2 more checkpoint times
+																			// than checkpoints to account for start and
+			// finish of the race. e.g. if there is 5 checkpoints there should be 7 times.
+			stage.addRiderResult(riderResult);
+
+		} else {
+
+			throw new InvalidCheckpointTimesException("There should be:" + (stageCheckpoints.size() + 2)
+					+ " Times you have:" + riderCheckpointTimes.length);
+		}
 
 	}
 
 	@Override
+	// Aritra
 	public LocalTime[] getRiderResultsInStage(int stageId, int riderId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
-		return null;
+		System.out.println("gerRiderResultsInStage is running");
+		stageIDNotRecognisedException(stageId);
+		riderIdNotRecognised(riderId);
+		int raceId = stageId / 100; // gets raceId and stage index
+		int stageIndex = (stageId % 100) - 1;
+		Race race = races.get(raceId - 1); // gets race specified at the id and gets the stages within that race
+		List<Stage> stages = race.getStages();
+		Stage stage = stages.get(stageIndex); // gets the stage at the index specified
+		List<RiderResult> riderResults = stage.getRiderResult();
+
+		for (int i = 0; riderResults.size() > i; i++) { // Loop to find rider with the specified ID
+			RiderResult riderResult = riderResults.get(i);
+			if (riderResult.getRiderId() == riderId) {
+				LocalTime[] riderCheckpointTimes = riderResult.getCheckpoints();
+				for (LocalTime localTime : riderCheckpointTimes) {
+					System.out.println(localTime); // prints out all the rider's times within the quieried stage
+				}
+				assert riderCheckpointTimes.length != 0;
+				return riderCheckpointTimes;
+			}
+
+		}
+
+		return new LocalTime[0];// returns nothing if rider has not completed the stage
 	}
 
 	@Override
