@@ -1,9 +1,12 @@
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import cycling.CheckpointType;
 import cycling.CyclingPortalImpl;
+import cycling.DuplicatedResultException;
 import cycling.IDNotRecognisedException;
 import cycling.IllegalNameException;
+import cycling.InvalidCheckpointTimesException;
 import cycling.InvalidLengthException;
 import cycling.InvalidLocationException;
 import cycling.InvalidNameException;
@@ -43,12 +46,10 @@ public class CyclingPortalTestApp {
 		assert (portal1.getTeams().length == 0)
 				: "Innitial Portal not empty as required or not returning an empty array.";
 
-		
 		try {
 			portal1.createRace("Race1", "Desc"); // creates 2 races
 			portal1.createRace("Race2", "Desc");
 			portal1.createRace("Race3", "Desc");
-
 
 			portal1.getRaceIds(); // gets id of the races
 		} catch (IllegalNameException e) {
@@ -85,7 +86,6 @@ public class CyclingPortalTestApp {
 			portal1.addStageToRace(1, "stage2", "desc", 5, LocalDateTime.now(), StageType.TT);
 			portal1.addStageToRace(1, "stage3", "desc", 5, LocalDateTime.now(), StageType.MEDIUM_MOUNTAIN);
 			portal1.addStageToRace(1, "stage4", "desc", 5, LocalDateTime.now(), StageType.TT);
-
 
 			System.out.println(LocalDateTime.now());
 		} catch (IllegalNameException e) {
@@ -151,9 +151,9 @@ public class CyclingPortalTestApp {
 		}
 
 		try {
-			portal1.addCategorizedClimbToStage(101, 2.1, CheckpointType.C1,2.1, 2.2);
-			portal1.addCategorizedClimbToStage(101, 2.1, CheckpointType.C1,2.1, 2.2);
-			portal1.addCategorizedClimbToStage(101, 2.1, CheckpointType.C1,2.1, 2.2);
+			portal1.addCategorizedClimbToStage(101, 2.1, CheckpointType.C1, 2.1, 2.2);
+			portal1.addCategorizedClimbToStage(101, 2.1, CheckpointType.C1, 2.1, 2.2);
+			portal1.addCategorizedClimbToStage(101, 2.1, CheckpointType.C1, 2.1, 2.2);
 			portal1.addIntermediateSprintToStage(101, 2.3);
 
 		} catch (IDNotRecognisedException e) {
@@ -162,15 +162,14 @@ public class CyclingPortalTestApp {
 		} catch (InvalidStageStateException e) {
 			e.printStackTrace();
 			System.out.println("Error");
-		}catch (InvalidStageTypeException e) {
+		} catch (InvalidStageTypeException e) {
 			e.printStackTrace();
 			System.out.println("Error");
-		}catch (InvalidLocationException e) {
+		} catch (InvalidLocationException e) {
 			e.printStackTrace();
 			System.out.println("Error");
 		}
 
-		
 		try {
 			portal1.getStageCheckpoints(101);
 
@@ -184,7 +183,7 @@ public class CyclingPortalTestApp {
 		} catch (IDNotRecognisedException e) {
 			e.printStackTrace();
 			System.out.println("Error");
-		}catch (InvalidStageStateException e) {
+		} catch (InvalidStageStateException e) {
 			e.printStackTrace();
 			System.out.println("Error");
 		}
@@ -198,7 +197,7 @@ public class CyclingPortalTestApp {
 			e.printStackTrace();
 			System.out.println("Error");
 		}
-		
+
 		try {
 			portal1.removeRaceByName("Race3");
 
@@ -221,15 +220,15 @@ public class CyclingPortalTestApp {
 			// TODO: handle exception
 			e.printStackTrace();
 			System.out.println("Error");
-		} catch(IllegalNameException e){
+		} catch (IllegalNameException e) {
 			e.printStackTrace();
 			System.out.println("Error");
 
-		} 
+		}
 
 		try {
-			portal1.createRider(1,"Rider 1",1999);
-			portal1.createRider(1,"Rider 2",1999);
+			portal1.createRider(1, "Rider 1", 1999);
+			portal1.createRider(1, "Rider 2", 1999);
 
 		} catch (IDNotRecognisedException e) {
 			e.printStackTrace();
@@ -240,9 +239,35 @@ public class CyclingPortalTestApp {
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
+	
+		try {
+			portal1.registerRiderResultsInStage(101, 101, LocalTime.of(0, 10), LocalTime.of(0, 10), LocalTime.of(0, 11),
+					LocalTime.of(0, 14), LocalTime.of(0, 17));
+			System.out.println(LocalTime.of(10, 0));
+		} catch (IDNotRecognisedException e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			System.out.println("Error");
+		} catch (InvalidCheckpointTimesException e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			System.out.println("Error");
 
+		} catch (DuplicatedResultException e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			System.out.println("Error");
 
-		
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		try {
+			portal1.getRiderResultsInStage(101, 101);
+		} catch (IDNotRecognisedException e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			System.out.println("Error");
+		}
 	}
 
 }
