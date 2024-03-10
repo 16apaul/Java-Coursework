@@ -941,6 +941,15 @@ public class CyclingPortalImpl implements CyclingPortal {
 		return new LocalTime[0];// returns nothing if rider has not completed the stage
 	}
 
+	// Method to get results
+	private List<Result> getResults() {
+		List<Result> allResults = new ArrayList<>();
+		for (Stage stage : stages) {
+			allResults.addAll(stage.getResults());
+		}
+		return allResults;
+	}
+
 	@Override
 	public LocalTime getRiderAdjustedElapsedTimeInStage(int stageId, int riderId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
@@ -950,8 +959,40 @@ public class CyclingPortalImpl implements CyclingPortal {
 	@Override
 	public void deleteRiderResultsInStage(int stageId, int riderId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
+		// Check if stage ID is valid
+		stageIdNotRecognised(stageId);
+		Stage stage = stages.get(stageId - 1);
 
+		// Check if rider ID is valid
+		int teamId = riderId / 100; 
+		teamIdNotRecognised(teamId);
+
+		Team team = teams.get(teamId - 1);
+		List<Rider> riders = team.getRiders();
+
+		// Check if rider ID is valid
+		int riderIndex = (riderId % 100) - 1;
+		if (riderIndex < 0 || riderIndex >= riders.size()) {
+			throw new IDNotRecognisedException("Rider ID " + riderId + " not recognised");
+		}
+
+		// Find the result index for the rider in the specified stage
+		int resultIndex = -1;
+		List<Result> results = stage.getResults();
+		for (int i = 0; i < results.size(); i++) {
+			if (results.get(i).getRiderId() == riderId) {
+				resultIndex = i;
+				break;
+			}
+		}
+		// Check if result for the rider in the specified stage is found
+		if (resultIndex == -1) {
+			throw new IDNotRecognisedException("Rider ID " + riderId + " does not have results for stage " + stageId);
+		}
+		// Delete the result for the rider in the specified stage
+		results.remove(resultIndex);
 	}
+
 
 	@Override
 	public int[] getRidersRankInStage(int stageId) throws IDNotRecognisedException {
