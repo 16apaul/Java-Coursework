@@ -846,6 +846,24 @@ public class CyclingPortalImpl implements CyclingPortal {
 			return checkpoints;
 		}
 
+		public LocalTime getRiderAdjustedElapsedTimeInStage(Stage stage) {
+	        // Calculate the elapsed time based on checkpoints
+	        LocalTime startTime = stage.getStartTime();
+	        LocalTime finishTime = stage.getFinishTime();
+	        long elapsedSeconds = startTime.until(finishTime, java.time.temporal.ChronoUnit.SECONDS);
+	
+	        // Adjust the elapsed time as needed (for example, subtracting any penalties)
+	        // For demonstration, let's assume there are no penalties for now
+	        long adjustedElapsedSeconds = elapsedSeconds;
+	
+	        // Convert the adjusted elapsed time from seconds to LocalTime format
+	        int hours = (int) (adjustedElapsedSeconds / 3600);
+	        int minutes = (int) ((adjustedElapsedSeconds % 3600) / 60);
+	        int seconds = (int) (adjustedElapsedSeconds % 60);
+	
+	        return LocalTime.of(hours, minutes, seconds);
+	    }
+
 	}
 
 	public void riderIdNotRecognised(int riderId) throws IDNotRecognisedException {
