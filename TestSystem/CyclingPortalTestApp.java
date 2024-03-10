@@ -152,9 +152,8 @@ public class CyclingPortalTestApp {
 
 		try {
 			portal1.addCategorizedClimbToStage(101, 2.1, CheckpointType.C1, 2.1, 2.2);
-			portal1.addCategorizedClimbToStage(101, 2.1, CheckpointType.C1, 2.1, 2.2);
-			portal1.addCategorizedClimbToStage(101, 2.1, CheckpointType.C1, 2.1, 2.2);
-			portal1.addIntermediateSprintToStage(101, 2.3);
+			portal1.addCategorizedClimbToStage(101, 2.0, CheckpointType.C1, 2.1, 2.2);
+			portal1.addCategorizedClimbToStage(101, 1.7, CheckpointType.C1, 2.1, 2.2);
 
 		} catch (IDNotRecognisedException e) {
 			e.printStackTrace();
@@ -177,16 +176,7 @@ public class CyclingPortalTestApp {
 			e.printStackTrace();
 			System.out.println("Error");
 		}
-		try {
-			portal1.removeCheckpoint(10104);
 
-		} catch (IDNotRecognisedException e) {
-			e.printStackTrace();
-			System.out.println("Error");
-		} catch (InvalidStageStateException e) {
-			e.printStackTrace();
-			System.out.println("Error");
-		}
 		try {
 			portal1.concludeStagePreparation(101);
 
@@ -229,6 +219,7 @@ public class CyclingPortalTestApp {
 		try {
 			portal1.createRider(1, "Rider 1", 1999);
 			portal1.createRider(1, "Rider 2", 1999);
+			portal1.createRider(1, "Rider 3", 1999);
 
 		} catch (IDNotRecognisedException e) {
 			e.printStackTrace();
@@ -239,11 +230,15 @@ public class CyclingPortalTestApp {
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
-	
+
 		try {
-			portal1.registerRiderResultsInStage(101, 101, LocalTime.of(0, 10), LocalTime.of(0, 10), LocalTime.of(0, 11),
-					LocalTime.of(0, 14), LocalTime.of(0, 17));
-			System.out.println(LocalTime.of(10, 0));
+			portal1.registerRiderResultsInStage(101, 101, LocalTime.of(0, 10, 10), LocalTime.of(0, 10, 11),
+					LocalTime.of(0, 13),
+					LocalTime.of(0, 19), LocalTime.of(0, 19, 9));
+			portal1.registerRiderResultsInStage(101, 102, LocalTime.of(0, 10), LocalTime.of(0, 10), LocalTime.of(0, 11),
+					LocalTime.of(0, 14), LocalTime.of(0, 15, 33));
+			portal1.registerRiderResultsInStage(101, 103, LocalTime.of(0, 10), LocalTime.of(0, 10), LocalTime.of(0, 11),
+					LocalTime.of(0, 14), LocalTime.of(0, 15, 34));
 		} catch (IDNotRecognisedException e) {
 			// TODO: handle exception
 			e.printStackTrace();
@@ -258,9 +253,11 @@ public class CyclingPortalTestApp {
 			e.printStackTrace();
 			System.out.println("Error");
 
-		} catch (Exception e) {
-			// TODO: handle exception
+		} catch (InvalidStageStateException e) {
+			e.printStackTrace();
+			System.out.println("Error");
 		}
+
 		try {
 			portal1.getRiderResultsInStage(101, 101);
 		} catch (IDNotRecognisedException e) {
@@ -269,5 +266,4 @@ public class CyclingPortalTestApp {
 			System.out.println("Error");
 		}
 	}
-
 }
