@@ -336,6 +336,37 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	}
 
+	// need to properly do this, just put this here to have a basic outline
+	class Result {
+		private int riderId;
+		private LocalTime startTime;
+		private LocalTime finishTime;
+		private Duration totalTime;
+		
+		public Result(int riderId, LocalTime startTime, LocalTime finishTime) {
+		this.riderId = riderId;
+		this.startTime = startTime;
+		this.finishTime = finishTime;
+		this.totalTime = Duration.between(startTime, finishTime);
+		}
+		
+		public int getRiderId() {
+		return riderId;
+		}
+		
+		public LocalTime getStartTime() {
+		return startTime;
+		}
+		
+		public LocalTime getFinishTime() {
+		return finishTime;
+		}
+		
+		public Duration getTotalTime() {
+		return totalTime;
+		}
+		}
+	
 	// Aritra
 	class Checkpoint { // Parent of Climbcheckpoint and Intermediate sprint
 		private double location;
