@@ -1050,9 +1050,17 @@ public class CyclingPortalImpl implements CyclingPortal {
 	}
 
 	@Override
+	// Not Committed
 	public void eraseCyclingPortal() {
 		// TODO Auto-generated method stub
-
+		// Clear list of riders
+		riders.clear();
+		// Clear list of stages
+		stages.clear();
+		// Clear list of results in each stage
+		for (Stage stage : stages) {
+			stage.getResults().clear();
+		}
 	}
 
 	@Override
