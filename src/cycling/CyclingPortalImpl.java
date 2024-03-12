@@ -829,9 +829,30 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public void removeRider(int riderId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-
-	}
+		// Iterate through the list of races
+		for (int i = 0; i < races.size(); i++) {
+		Race race = races.get(i);
+		// Iterate through the stages of each race
+		List<Stage> stages = race.getStages();
+		for (int j = 0; j < stages.size(); j++) {
+		    Stage stage = stages.get(j);
+		    // Get the list of rider results in the stage
+		    List<RiderResult> riderResults = stage.getRiderResults();
+		    // Iterate through the rider results
+		    for (int k = 0; k < riderResults.size(); k++) {
+			RiderResult riderResult = riderResults.get(k);
+			// If the rider ID matches, remove the rider result
+			if (riderResult.getRiderId() == riderId) {
+			    riderResults.remove(k);
+			    // Decrement k to account for the removal of an element
+			    k--;
+			}
+		    }
+		}
+		}
+		// If rider not found in rider result, throw exception
+		throw new IDNotRecognisedException("Rider ID not recognised: " + riderId);
+		}
 
 	class RiderResult implements Comparable<RiderResult> {
 			// Aritra
