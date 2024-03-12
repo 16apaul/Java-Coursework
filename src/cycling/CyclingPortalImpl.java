@@ -17,16 +17,16 @@ import java.time.temporal.ChronoUnit;
  *
  */
 public class CyclingPortalImpl implements CyclingPortal {
-
-	public static ArrayList<Race> races = new ArrayList<>(); // arraylist gets declared once and puts the Race
-																// objects inside
+	// Arraylist gets declared once and puts the Race objects inside
+	public static ArrayList<Race> races = new ArrayList<>(); 
+	
 	public static ArrayList<Team> teams = new ArrayList<>();
 	// Method below is coded by Aritra
 
 	public void raceIDNotRecognisedException(int raceId) throws IDNotRecognisedException {
-
-		if (raceId > races.size() || raceId <= 0) { // Checks if ID entered is greater or less than list if it is
-													// exception is thrown
+		// Checks if ID entered is greater or less than list if it is exception is thrown
+		if (raceId > races.size() || raceId <= 0) { 
+													
 			throw new IDNotRecognisedException("There is no race with ID:" + raceId);
 
 		}
