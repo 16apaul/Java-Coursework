@@ -29,7 +29,7 @@ public class CyclingPortalImpl implements MiniCyclingPortal {
 	public static ArrayList<Race> races = new ArrayList<>();
 	public static ArrayList<Rider> riders = new ArrayList<>();
 	public static ArrayList<Team> teams = new ArrayList<>();
-
+	
 	@Override
 	// n
 	// s(a)
@@ -130,6 +130,7 @@ public class CyclingPortalImpl implements MiniCyclingPortal {
 
 		return raceDetails;
 	}
+		return null;
 	}
 
 
@@ -183,7 +184,7 @@ public class CyclingPortalImpl implements MiniCyclingPortal {
 		List<Stage> stages = race.getStages();
 
 		// If there are no stages return first stage ID for the race
-		if (stages.isEmpty()) 
+		if (stages.isEmpty()) {
 			return raceId * 100 + 1;
 		}
 		// Find the maximum stage ID in the list of stages
@@ -198,51 +199,8 @@ public class CyclingPortalImpl implements MiniCyclingPortal {
 		return maxStageId + 1;
 	}
 
-	//n
-	//
-	@Override
-	public int addStageToRace(int raceId, String stageName, String description, double length, LocalDateTime startTime, cycling.StageType type)
-			throws IDNotRecognisedException, IllegalNameException, InvalidNameException, InvalidLengthException {
-		// Check if the race ID is valid
-		if (raceId <= 0 || raceId > races.size()) {
-			throw new IDNotRecognisedException(raceId + " is invalid.");
-		}
-		// Check stage name
-		if (stageName == null || stageName.trim().isEmpty()) {
-			throw new InvalidNameException("Please input a stage name");
-		}
-		// Check for spaces in stage name
-		if (stageName.contains(" ")) {
-			throw new InvalidNameException("Stage name cannot contain spaces");
-		}
-		// Check stage name length
-		if (stageName.length() > 30) {
-			throw new InvalidNameException("Stage name must be 30 characters or fewer");
-		}
-		// Check stage description length
-		if (description != null && description.length() > 100) {
-			throw new InvalidNameException("Stage description must be 100 characters or fewer");
-		}
-		// Check stage length
-		if (length < 5) {
-			throw new InvalidLengthException("Stage length must be 5km or greater");
-		}
-		// Get the race by ID
-		Race race = races.get(raceId - 1);
-		// Check if the race exists
-		if (race == null) {
-			throw new IDNotRecognisedException("Race with ID " + raceId + " does not exist.");
-		}
-		// Convert LocalDateTime to LocalTime for finishTime
-		//LocalTime finishTime = startTime.toLocalTime().plusMinutes((long) (length * 60));
-		// Create the Stage object using finishTime
-		Stage stage = new Stage(getNextStageId(raceId), stageType, startTime.toLocalTime(), length);
-		// Add the stage to the race
-		race.addStage(stage);
-		// Return the stage ID
-		return stage.getStageId();
-	}
 
+	
 
 	@Override
 	// n
@@ -355,6 +313,7 @@ public class CyclingPortalImpl implements MiniCyclingPortal {
 			InvalidLocationException, InvalidStageStateException, InvalidStageTypeException {
 		// TODO Auto-generated method stub
 		checkStageIdValidity(stageId);
+		return stageId;
 
 	}
 
@@ -709,7 +668,7 @@ public class CyclingPortalImpl implements MiniCyclingPortal {
 
 	////
 	// cn
-	private void calculateAdjustedElapsedTimes(int stageId) {
+	private void calculateAdjustedElapsedTimes(int stageId) throws IDNotRecognisedException {
 		Stage stage = getStageById(stageId);
 		if (stage == null) {
 			// Handle the case where the stage ID is not recognized
@@ -1067,9 +1026,9 @@ public class CyclingPortalImpl implements MiniCyclingPortal {
 		private MountainType mountainType;
 
 		// Constructor
-		public Stage(int stageId, StageType stageType, LocalTime startTime,  double length) {
+		public Stage(int stageId, StageType type, LocalTime startTime,  double length) {
 			this.stageId = stageId;
-			this.stageType = stageType;
+			this.stageType = type;
 			this.startTime = startTime;
 			//this.finishTime = finishTime;
 			this.length = length;
@@ -1267,6 +1226,7 @@ public class CyclingPortalImpl implements MiniCyclingPortal {
 					return null;
 				}
 			}
+			return null;
 		}
 
 
@@ -1453,4 +1413,49 @@ public class CyclingPortalImpl implements MiniCyclingPortal {
 	public enum MountainType {
 		HC, ONE_C, TWO_C, THREE_C, FOUR_C
 	}
+
+	
+	@Override
+	public int addStageToRace(int raceId, String stageName, String description, double length, LocalDateTime startTime, cycling.StageType type)
+			throws IDNotRecognisedException, IllegalNameException, InvalidNameException, InvalidLengthException {
+		// Check if the race ID is valid
+		if (raceId <= 0 || raceId > races.size()) {
+			throw new IDNotRecognisedException(raceId + " is invalid.");
+		}
+		// Check stage name
+		if (stageName == null || stageName.trim().isEmpty()) {
+			throw new InvalidNameException("Please input a stage name");
+		}
+		// Check for spaces in stage name
+		if (stageName.contains(" ")) {
+			throw new InvalidNameException("Stage name cannot contain spaces");
+		}
+		// Check stage name length
+		if (stageName.length() > 30) {
+			throw new InvalidNameException("Stage name must be 30 characters or fewer");
+		}
+		// Check stage description length
+		if (description != null && description.length() > 100) {
+			throw new InvalidNameException("Stage description must be 100 characters or fewer");
+		}
+		// Check stage length
+		if (length < 5) {
+			throw new InvalidLengthException("Stage length must be 5km or greater");
+		}
+		// Get the race by ID
+		Race race = races.get(raceId - 1);
+		// Check if the race exists
+		if (race == null) {
+			throw new IDNotRecognisedException("Race with ID " + raceId + " does not exist.");
+		}
+		// Convert LocalDateTime to LocalTime for finishTime
+		//LocalTime finishTime = startTime.toLocalTime().plusMinutes((long) (length * 60));
+		// Create the Stage object using finishTime
+		// Stage stage = new Stage(getNextStageId(raceId), type, startTime.toLocalTime(), length);
+		// Add the stage to the race
+		//race.addStage(stage);
+		// Return the stage ID
+		return 0;
+	}
+
 }
