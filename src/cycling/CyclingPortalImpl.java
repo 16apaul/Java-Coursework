@@ -183,7 +183,7 @@ public class CyclingPortalImpl implements MiniCyclingPortal {
 		List<Stage> stages = race.getStages();
 
 		// If there are no stages return first stage ID for the race
-		if (stages.isEmpty()) {
+		if (stages.isEmpty()) 
 			return raceId * 100 + 1;
 		}
 		// Find the maximum stage ID in the list of stages
@@ -198,11 +198,10 @@ public class CyclingPortalImpl implements MiniCyclingPortal {
 		return maxStageId + 1;
 	}
 
-
-	//@Override
 	//n
 	//
-	public int addStageToRace(int raceId, String stageName, String description, double length, LocalDateTime startTime, StageType type)
+	@Override
+	public int addStageToRace(int raceId, String stageName, String description, double length, LocalDateTime startTime, cycling.StageType type)
 			throws IDNotRecognisedException, IllegalNameException, InvalidNameException, InvalidLengthException {
 		// Check if the race ID is valid
 		if (raceId <= 0 || raceId > races.size()) {
@@ -237,7 +236,7 @@ public class CyclingPortalImpl implements MiniCyclingPortal {
 		// Convert LocalDateTime to LocalTime for finishTime
 		//LocalTime finishTime = startTime.toLocalTime().plusMinutes((long) (length * 60));
 		// Create the Stage object using finishTime
-		Stage stage = new Stage(getNextStageId(raceId), type, startTime.toLocalTime(), length);
+		Stage stage = new Stage(getNextStageId(raceId), stageType, startTime.toLocalTime(), length);
 		// Add the stage to the race
 		race.addStage(stage);
 		// Return the stage ID
