@@ -13,6 +13,8 @@ import cycling.InvalidNameException;
 import cycling.InvalidStageStateException;
 import cycling.InvalidStageTypeException;
 import cycling.CyclingPortal;
+import cycling.MiniCyclingPortal;
+
 import cycling.NameNotRecognisedException;
 import cycling.StageType;
 
@@ -38,8 +40,8 @@ public class CyclingPortalTestApp {
 		System.out.println("The system compiled and started the execution...");
 
 		// TODO replace BadMiniCyclingPortalImpl by CyclingPortalImpl
-		CyclingPortal portal1 = new CyclingPortalImpl();
-		CyclingPortal portal2 = new CyclingPortalImpl();
+		MiniCyclingPortal portal1 = new CyclingPortalImpl();
+		MiniCyclingPortal portal2 = new CyclingPortalImpl();
 
 		assert (portal1.getRaceIds().length == 0)
 				: "Innitial Portal not empty as required or not returning an empty array.";
@@ -188,19 +190,7 @@ public class CyclingPortalTestApp {
 			System.out.println("Error");
 		}
 
-		try {
-			portal1.removeRaceByName("Race3");
-
-		} catch (NameNotRecognisedException e) {
-			e.printStackTrace();
-			System.out.println("Error");
-		}
-		try {
-			portal1.getRaceIds();
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-
+		
 		// Team tests
 		try {
 			portal1.createTeam("Team1", "Desc 1");
