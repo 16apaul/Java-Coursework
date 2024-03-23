@@ -249,7 +249,7 @@ public class CyclingPortalImpl implements MiniCyclingPortal {
 			throw new InvalidStageStateException("The stage is in 'waiting for results' state");
 		}
 		// Check if the stage type is valid
-		if (stage.getStageType() == StageType.TIME_TRIAL) {
+		if (stage.getStageType() == StageType.TT) {
 			throw new InvalidStageTypeException("Time-trial stages cannot contain any checkpoints");
 		}
 		// Check if the location is within the stage length
@@ -684,7 +684,7 @@ public class CyclingPortalImpl implements MiniCyclingPortal {
 			return null;
 		}
 		// Check if the stage is not a time-trial
-		if (stage.getStageType() != StageType.TIME_TRIAL) {
+		if (stage.getStageType() != StageType.TT) {
 			// Calculate adjusted elapsed time if not a time-trial
 			calculateAdjustedElapsedTimes(stageId);
 			// Iterate through the rider results to find the one with the specified rider ID
@@ -815,7 +815,7 @@ public class CyclingPortalImpl implements MiniCyclingPortal {
 			pointsArray = mediumMountainStagePoints;
 		} else if (givenStage.getStageType() == StageType.HIGH_MOUNTAIN) { // StageType.HIGH_MOUNTAIN or StageType.TT
 			pointsArray = highMountainPoints;
-		} else if (givenStage.getStageType() == StageType.TIME_TRIAL) { // StageType.HIGH_MOUNTAIN or StageType.TT
+		} else if (givenStage.getStageType() == StageType.TT) { // StageType.HIGH_MOUNTAIN or StageType.TT
 			pointsArray = timeTrialPoints;
 		} else {
 			return null;
@@ -1331,18 +1331,7 @@ public class CyclingPortalImpl implements MiniCyclingPortal {
 		}
 	}
 
-	public enum StageType {
-		TIME_TRIAL, FLAT, MEDIUM_MOUNTAIN, HIGH_MOUNTAIN
-	}
-
-	public enum StageState {
-		WAITING_FOR_RESULTS, PREPARATION, ADDING_CHECKPOINTS
-	}
-
-	public enum FinishType {
-		FLAT, HILLY, HIGH_MOUNTAIN, TIME_TRIAL, INTERMEDIATE_SPRINT
-	}
-
+	
 	@Override
 	public int addStageToRace(int raceId, String stageName, String description, double length, LocalDateTime startTime,
 			cycling.StageType type) throws IDNotRecognisedException, IllegalNameException, InvalidNameException, InvalidLengthException {
