@@ -13,7 +13,7 @@ public enum StageState {
 	 * Used when stage is created
 	 */
 	ADDING_CHECKPOINTS,
-	PREPARATIONS,
+	PREPARATION,
 	/**
 	 * When stage is concluded
 	 */
